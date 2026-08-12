@@ -23,18 +23,19 @@
     .choice.selected { border-color: #f4cf6d; background: #5f4027; }
     .start { height: 54px; border-radius: 8px; background: #d7a93f; color: #2b1a0e; font-weight: 900; font-size: 18px; }
     .game { flex-direction: column; height: 100%; }
-    .opponent { height: 13%; min-height: 104px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
-    .player { height: 25%; min-height: 176px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
+    .opponent { height: 11%; min-height: 96px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
+    .player { height: 31%; min-height: 224px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
     .player { border-top: 1px solid #4f3827; border-bottom: 0; background: #21150f; }
     .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 26px; font-size: 12px; color: #e9d8b8; }
     .stats { display: flex; gap: 7px; flex-wrap: nowrap; overflow-x: auto; }
     .pill { padding: 3px 7px; border-radius: 999px; background: #3a281c; border: 1px solid #6a5035; white-space: nowrap; }
     .hand { height: calc(100% - 28px); display: flex; gap: 6px; overflow-x: auto; align-items: center; }
     .mini-card { flex: 0 0 auto; width: 62px; height: 96px; border-radius: 6px; background: #5b4228; border: 1px solid #8a704f; overflow: hidden; position: relative; box-shadow: 0 3px 12px #0007; }
-    .player .mini-card { width: 93px; height: 144px; }
+    .player .mini-card { width: calc((100vw - 50px) / 6); max-width: 128px; height: auto; aspect-ratio: 31 / 48; }
     .mini-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .mini-card.back { display: grid; place-items: center; background: linear-gradient(135deg, #342115, #7a4b2b); color: #f9ddb2; font-weight: 900; }
     .mini-card.disabled { opacity: .45; filter: grayscale(.35); }
+    .mini-card.selected { border-color: #f4cf6d; box-shadow: 0 0 0 3px #f4cf6d, 0 8px 20px #0008; transform: translateY(-5px); }
     .mini-card .tag { position: absolute; left: 3px; bottom: 3px; right: 3px; padding: 2px; border-radius: 4px; background: #000a; font-size: 10px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .center { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px; gap: 8px; }
     .status { min-height: 62px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: stretch; }
@@ -52,7 +53,7 @@
     .badge { position: absolute; left: 4px; top: 4px; min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 999px; background: #f0c861; color: #25180f; font-weight: 900; font-size: 12px; border: 2px solid #3b281a; }
     .count { position: absolute; right: 4px; top: 4px; min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 999px; background: #21150fcc; color: #fff4d5; font-size: 12px; border: 1px solid #b18b55; }
     .name { position: absolute; left: 3px; right: 3px; bottom: 3px; padding: 3px 2px; border-radius: 5px; background: #000b; text-align: center; font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .log { height: 88px; border-radius: 8px; background: #160f0b; border: 1px solid #493423; overflow: auto; padding: 8px 10px; font-size: 16.5px; line-height: 1.35; color: #d8c3a1; }
+    .log { height: 76px; border-radius: 8px; background: #160f0b; border: 1px solid #493423; overflow: auto; padding: 8px 10px; font-size: 12.375px; line-height: 1.35; color: #d8c3a1; }
     .modal { position: absolute; inset: 0; display: none; align-items: end; background: #0009; z-index: 10; }
     .modal.active { display: flex; }
     .modal-box { width: 100%; max-height: 76%; background: #2a1b12; border-top: 2px solid #d2a24a; border-radius: 16px 16px 0 0; padding: 14px; overflow: auto; }
@@ -68,16 +69,16 @@
     @media (max-width: 560px) {
       .title { padding: 14px; }
       .option-grid { grid-template-columns: 1fr; }
-      .opponent { height: 13%; min-height: 100px; }
-      .player { height: 24%; min-height: 158px; }
+      .opponent { height: 11%; min-height: 92px; }
+      .player { height: 31%; min-height: 190px; }
       .status { min-height: 58px; grid-template-columns: 1fr 88px; }
       .message { font-size: 12px; }
       .action-btn { min-width: 0; font-size: 12px; }
       .supply-grid { grid-template-columns: repeat(5, 1fr); }
       .supply-card { min-height: 94px; }
       .mini-card { width: 54px; height: 84px; }
-      .player .mini-card { width: 81px; height: 126px; }
-      .log { height: 78px; font-size: 15px; }
+      .player .mini-card { width: calc((100vw - 50px) / 6); min-width: 58px; height: auto; }
+      .log { height: 68px; font-size: 11.25px; }
       .modal .cards { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
@@ -218,7 +219,7 @@
       hard:{label:"상",desc:"엔진과 공격 우선"}
     };
     let selectedPreset = 0, selectedDiff = "normal", selectedMode = "original";
-    let uid = 1, state = null, awaiting = false;
+    let uid = 1, state = null, awaiting = false, selectedTreasures = new Set();
     let audioCtx = null;
 
     const $ = id => document.getElementById(id);
@@ -244,7 +245,7 @@
         osc.type = "triangle";
         osc.frequency.setValueAtTime(settings[0], now);
         gain.gain.setValueAtTime(0.0001, now);
-        gain.gain.exponentialRampToValueAtTime(settings[2], now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(settings[2] * 1.5, now + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + settings[1]);
         osc.connect(gain).connect(audioCtx.destination);
         osc.start(now);
@@ -270,6 +271,7 @@
 
     function startGame() {
       uid = 1;
+      selectedTreasures.clear();
       const mode = modes[selectedMode];
       const supply = {copper:46, silver:40, gold:30, estate:8, duchy:8, province:mode.province, curse:10};
       for (const id of presets[selectedPreset].ids) supply[id] = cards[id].type === "victory" ? 8 : 10;
@@ -307,6 +309,7 @@
       $("message").innerHTML = active.ai ? "컴퓨터가 생각 중입니다." : helpText();
       $("playerStats").innerHTML = statsHtml(p);
       $("cpuStats").innerHTML = statsHtml(cpu);
+      selectedTreasures = new Set([...selectedTreasures].filter(u=>p.hand.some(c=>c.uid===u)));
       $("playerHand").innerHTML = p.hand.map((c,i)=>handHtml(c,i, state.current===0)).join("");
       $("cpuHand").innerHTML = cpu.hand.map(()=>`<div class="mini-card back">?</div>`).join("");
       $("supplyGrid").innerHTML = Object.keys(state.supply).map(id=>supplyHtml(id)).join("");
@@ -328,7 +331,8 @@
     function handHtml(c, i, human) {
       const cd = card(c);
       const playable = human && ((state.phase==="action" && cd.type.includes("action") && state.players[0].actions>0) || (state.phase==="buy" && cd.type==="treasure"));
-      return `<div class="mini-card ${playable?"":"disabled"}" data-hand="${i}"><img src="${IMG+cd.img}" alt="${cd.name}"><div class="tag">${cd.name}</div></div>`;
+      const selected = selectedTreasures.has(c.uid);
+      return `<div class="mini-card ${playable?"":"disabled"} ${selected?"selected":""}" data-hand="${i}"><img src="${IMG+cd.img}" alt="${cd.name}"><div class="tag">${cd.name}</div></div>`;
     }
     function supplyHtml(id) {
       const cd = cards[id], count = state.supply[id] || 0;
@@ -339,7 +343,7 @@
       if (awaiting || state.current !== 0) return;
       const p = state.players[0], c = p.hand[i], cd = card(c);
       if (state.phase === "action" && cd.type.includes("action") && p.actions > 0) { sound("card"); await playAction(p, i); }
-      else if (state.phase === "buy" && cd.type === "treasure") { sound("card"); playTreasure(p, i); }
+      else if (state.phase === "buy" && cd.type === "treasure") { sound("card"); toggleTreasure(p, c); }
       else sound("block");
       render();
     }
@@ -358,6 +362,19 @@
       p.play.push(c);
       p.coins += card(c).coins || 0;
       log(`${p.name}: ${card(c).name} 사용 (+${card(c).coins} 재화)`);
+    }
+    function toggleTreasure(p, c) {
+      const coins = card(c).coins || 0;
+      if (selectedTreasures.has(c.uid)) {
+        if (p.coins < coins) return sound("block"), log("이미 사용한 재화는 구매 후 취소할 수 없습니다.");
+        selectedTreasures.delete(c.uid);
+        p.coins -= coins;
+        log(`${p.name}: ${card(c).name} 선택 취소 (-${coins} 재화)`);
+      } else {
+        selectedTreasures.add(c.uid);
+        p.coins += coins;
+        log(`${p.name}: ${card(c).name} 선택 (+${coins} 재화)`);
+      }
     }
     async function playAction(p, i, free=false) {
       let c;
@@ -437,6 +454,7 @@
 
     function beginBuyPhase() {
       if (state.current !== 0) return;
+      selectedTreasures.clear();
       state.phase = "buy";
       log("구매 단계로 넘어갑니다.");
       render();
@@ -451,10 +469,11 @@
       if (state.players[state.current].ai) await aiTurn();
     }
     function cleanup(p) {
+      if (!p.ai) selectedTreasures.clear();
       p.discard.push(...p.hand.splice(0), ...p.play.splice(0));
       draw(p,5); p.turns++;
     }
-    function startTurn(p) { p.actions=1; p.buys=1; p.coins=0; state.phase="action"; log(`${p.name} 턴 시작`); }
+    function startTurn(p) { if (!p.ai) selectedTreasures.clear(); p.actions=1; p.buys=1; p.coins=0; state.phase="action"; log(`${p.name} 턴 시작`); }
     async function aiTurn() {
       awaiting = true; render();
       const p = state.players[1];
