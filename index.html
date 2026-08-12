@@ -23,13 +23,15 @@
     .choice.selected { border-color: #f4cf6d; background: #5f4027; }
     .start { height: 54px; border-radius: 8px; background: #d7a93f; color: #2b1a0e; font-weight: 900; font-size: 18px; }
     .game { flex-direction: column; height: 100%; }
-    .opponent, .player { height: 18%; min-height: 124px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
+    .opponent { height: 14%; min-height: 112px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
+    .player { height: 25%; min-height: 176px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
     .player { border-top: 1px solid #4f3827; border-bottom: 0; background: #21150f; }
     .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 26px; font-size: 12px; color: #e9d8b8; }
     .stats { display: flex; gap: 7px; flex-wrap: wrap; }
     .pill { padding: 3px 7px; border-radius: 999px; background: #3a281c; border: 1px solid #6a5035; white-space: nowrap; }
     .hand { height: calc(100% - 28px); display: flex; gap: 6px; overflow-x: auto; align-items: center; }
     .mini-card { flex: 0 0 auto; width: 62px; height: 96px; border-radius: 6px; background: #5b4228; border: 1px solid #8a704f; overflow: hidden; position: relative; box-shadow: 0 3px 12px #0007; }
+    .player .mini-card { width: 93px; height: 144px; }
     .mini-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .mini-card.back { display: grid; place-items: center; background: linear-gradient(135deg, #342115, #7a4b2b); color: #f9ddb2; font-weight: 900; }
     .mini-card.disabled { opacity: .45; filter: grayscale(.35); }
@@ -42,8 +44,8 @@
     .action-btn.primary { background: #d7a93f; color: #26170c; }
     .supply { flex: 1; min-height: 0; display: grid; grid-template-rows: auto 1fr; gap: 6px; }
     .supply-title { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #d9c29d; }
-    .supply-grid { min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; align-content: start; padding-bottom: 4px; }
-    .supply-card { position: relative; min-height: 118px; border-radius: 7px; overflow: hidden; background: #3a291e; border: 1px solid #775d3f; box-shadow: 0 4px 12px #0006; }
+    .supply-grid { min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; align-content: start; padding-bottom: 4px; }
+    .supply-card { position: relative; min-height: 106px; border-radius: 7px; overflow: hidden; background: #3a291e; border: 1px solid #775d3f; box-shadow: 0 4px 12px #0006; }
     .supply-card.selected { outline: 3px solid #f4cf6d; outline-offset: -3px; }
     .supply-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .supply-card.empty img { opacity: .25; filter: grayscale(1); }
@@ -66,9 +68,12 @@
     @media (max-width: 560px) {
       .title { padding: 14px; }
       .option-grid { grid-template-columns: 1fr; }
-      .supply-grid { grid-template-columns: repeat(4, 1fr); }
-      .supply-card { min-height: 104px; }
+      .opponent { height: 14%; min-height: 104px; }
+      .player { height: 24%; min-height: 158px; }
+      .supply-grid { grid-template-columns: repeat(5, 1fr); }
+      .supply-card { min-height: 94px; }
       .mini-card { width: 54px; height: 84px; }
+      .player .mini-card { width: 81px; height: 126px; }
       .modal .cards { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
@@ -210,6 +215,7 @@
     };
     let selectedPreset = 0, selectedDiff = "normal", selectedMode = "original";
     let uid = 1, state = null, awaiting = false;
+    let audioCtx = null;
 
     const $ = id => document.getElementById(id);
     const make = id => ({id, uid: uid++});
@@ -218,14 +224,37 @@
     const allCards = p => [...p.deck,...p.hand,...p.discard,...p.play];
     const log = text => { state.log.unshift(text); state.log = state.log.slice(0, 30); };
     const hasMoat = p => p.hand.some(c=>c.id==="moat");
+    function sound(kind="click") {
+      try {
+        audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+        const now = audioCtx.currentTime;
+        const settings = {
+          click: [620, 0.045, 0.035],
+          card: [520, 0.07, 0.045],
+          buy: [760, 0.09, 0.055],
+          block: [180, 0.08, 0.04],
+          confirm: [880, 0.06, 0.05]
+        }[kind] || [620, 0.045, 0.035];
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(settings[0], now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(settings[2], now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + settings[1]);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + settings[1] + 0.01);
+      } catch {}
+    }
 
     function initChoices() {
       $("deckChoices").innerHTML = presets.map((p,i)=>`<button class="choice ${i===selectedPreset?"selected":""}" data-deck="${i}"><strong>${i+1}. ${p.title}</strong><span>${p.desc}</span><span>${p.ids.map(id=>cards[id].name).join(", ")}</span></button>`).join("");
       $("difficultyChoices").innerHTML = Object.entries(diffs).map(([id,d])=>`<button class="choice ${id===selectedDiff?"selected":""}" data-diff="${id}"><strong>${d.label}</strong><span>${d.desc}</span></button>`).join("");
       $("modeChoices").innerHTML = Object.entries(modes).map(([id,m])=>`<button class="choice ${id===selectedMode?"selected":""}" data-mode="${id}"><strong>${m.label}</strong><span>${m.desc}</span></button>`).join("");
-      document.querySelectorAll("[data-deck]").forEach(b=>b.onclick=()=>{selectedPreset=+b.dataset.deck;initChoices();});
-      document.querySelectorAll("[data-diff]").forEach(b=>b.onclick=()=>{selectedDiff=b.dataset.diff;initChoices();});
-      document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{selectedMode=b.dataset.mode;initChoices();});
+      document.querySelectorAll("[data-deck]").forEach(b=>b.onclick=()=>{sound("click");selectedPreset=+b.dataset.deck;initChoices();});
+      document.querySelectorAll("[data-diff]").forEach(b=>b.onclick=()=>{sound("click");selectedDiff=b.dataset.diff;initChoices();});
+      document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{sound("click");selectedMode=b.dataset.mode;initChoices();});
     }
 
     function newPlayer(name, ai=false) {
@@ -305,16 +334,18 @@
     async function onHand(i) {
       if (awaiting || state.current !== 0) return;
       const p = state.players[0], c = p.hand[i], cd = card(c);
-      if (state.phase === "action" && cd.type.includes("action") && p.actions > 0) await playAction(p, i);
-      else if (state.phase === "buy" && cd.type === "treasure") playTreasure(p, i);
+      if (state.phase === "action" && cd.type.includes("action") && p.actions > 0) { sound("card"); await playAction(p, i); }
+      else if (state.phase === "buy" && cd.type === "treasure") { sound("card"); playTreasure(p, i); }
+      else sound("block");
       render();
     }
     async function onSupply(id) {
       if (awaiting || state.current !== 0 || state.phase !== "buy") return;
       const p = state.players[0], cd = cards[id];
-      if (state.supply[id] <= 0) return log("그 카드 더미가 비었습니다."), render();
-      if (p.buys <= 0) return log("남은 구입이 없습니다."), render();
-      if (p.coins < cd.cost) return log("재화가 부족합니다."), render();
+      if (state.supply[id] <= 0) return sound("block"), log("그 카드 더미가 비었습니다."), render();
+      if (p.buys <= 0) return sound("block"), log("남은 구입이 없습니다."), render();
+      if (p.coins < cd.cost) return sound("block"), log("재화가 부족합니다."), render();
+      sound("buy");
       p.coins -= cd.cost; p.buys--; gain(p, id); render();
       if (checkEnd()) endGame();
     }
@@ -511,20 +542,21 @@
       $("modalOk").textContent = okText; $("modalCancel").textContent = cancelText;
       $("modal").classList.add("active");
       document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
+        sound("card");
         const v = isNaN(+b.dataset.pick) ? b.dataset.pick : +b.dataset.pick;
         if (selected.has(v)) { selected.delete(v); b.classList.remove("selected"); }
         else if (selected.size < max) { selected.add(v); b.classList.add("selected"); }
       });
       const close = val => { $("modal").classList.remove("active"); awaiting = false; render(); resolve(val); };
-      $("modalOk").onclick = () => { if (selected.size < min) return; close([...selected]); };
-      $("modalCancel").onclick = () => { $("modal").classList.remove("active"); awaiting = false; render(); (cancelResolve || resolve)([]); };
-      if (!items.length && min===0) $("modalOk").onclick = () => close([]);
+      $("modalOk").onclick = () => { if (selected.size < min) return sound("block"); sound("confirm"); close([...selected]); };
+      $("modalCancel").onclick = () => { sound("click"); $("modal").classList.remove("active"); awaiting = false; render(); (cancelResolve || resolve)([]); };
+      if (!items.length && min===0) $("modalOk").onclick = () => { sound("confirm"); close([]); };
     }
 
-    $("startBtn").onclick = startGame;
-    $("buyPhaseBtn").onclick = beginBuyPhase;
-    $("endTurnBtn").onclick = endTurn;
-    $("restartBtn").onclick = () => location.reload();
+    $("startBtn").onclick = () => { sound("confirm"); startGame(); };
+    $("buyPhaseBtn").onclick = () => { sound("click"); beginBuyPhase(); };
+    $("endTurnBtn").onclick = () => { sound("confirm"); endTurn(); };
+    $("restartBtn").onclick = () => { sound("click"); location.reload(); };
     initChoices();
   </script>
 </body>
