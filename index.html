@@ -36,7 +36,7 @@
     .player .mini-card { width: calc((100vw - 50px) / 6); max-width: 128px; height: auto; aspect-ratio: 31 / 48; }
     .mini-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .mini-card.back { display: grid; place-items: center; background: linear-gradient(135deg, #342115, #7a4b2b); color: #f9ddb2; font-weight: 900; }
-    .mini-card.disabled { opacity: .45; filter: grayscale(.35); }
+    .mini-card.disabled { cursor: default; }
     .mini-card.selected { border-color: #f4cf6d; box-shadow: 0 0 0 3px #f4cf6d, 0 8px 20px #0008; transform: translateY(-5px); }
     .mini-card .tag { position: absolute; left: 3px; bottom: 3px; right: 3px; padding: 2px; border-radius: 4px; background: #000a; font-size: 10px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .player .hand { height: auto; align-items: flex-start; padding-top: 2px; }
@@ -45,6 +45,7 @@
     .message { background: #2f2118; border: 1px solid #604832; border-radius: 8px; padding: 7px 10px; font-size: 12.375px; line-height: 1.35; overflow: auto; color: #ead7b8; }
     .message .guide { color: #fff0c2; font-weight: 800; margin-bottom: 4px; }
     .message .feed { color: #d8c3a1; font-size: .95em; }
+    .message .feed .recent { color: #fff6d4; font-weight: 900; }
     .actions { display: flex; flex-direction: column; gap: 6px; }
     .action-btn { min-width: 92px; flex: 1; border-radius: 8px; background: #684426; font-weight: 800; font-size: 13px; }
     .action-btn.primary { background: #d7a93f; color: #26170c; }
@@ -230,6 +231,7 @@
     };
     let selectedPreset = 0, selectedDiff = "normal", selectedMode = "original";
     let uid = 1, state = null, awaiting = false, selectedTreasures = new Set();
+    let preloadPromise = null;
     let audioCtx = null;
 
     const $ = id => document.getElementById(id);
@@ -276,6 +278,16 @@
         }
       } catch {}
     }
+    function preloadCardImages() {
+      if (preloadPromise) return preloadPromise;
+      const urls = [...new Set(Object.values(cards).map(c=>IMG + c.img))];
+      preloadPromise = Promise.allSettled(urls.map(src => new Promise(resolve => {
+        const img = new Image();
+        img.onload = img.onerror = resolve;
+        img.src = src;
+      })));
+      return preloadPromise;
+    }
 
     function initChoices() {
       $("deckChoices").innerHTML = presets.map((p,i)=>`<button class="choice ${i===selectedPreset?"selected":""}" data-deck="${i}"><strong>${i+1}. ${p.title}</strong><span>${p.desc} · ${p.ids.map(id=>cards[id].name).join(", ")}</span></button>`).join("");
@@ -293,7 +305,8 @@
       return p;
     }
 
-    function startGame() {
+    async function startGame() {
+      await preloadCardImages();
       uid = 1;
       selectedTreasures.clear();
       const mode = modes[selectedMode];
@@ -349,7 +362,7 @@
     function messageHtml(active) {
       const phase = `${active.name} 턴 · ${state.phase === "action" ? "액션" : "구매"} 단계`;
       const guide = active.ai ? "컴퓨터가 생각 중입니다." : helpText();
-      const feed = state.log.slice(0, 3).map(x=>`<div>${x}</div>`).join("");
+      const feed = state.log.slice(0, 3).map((x,i)=>`<div class="${i===0?"recent":""}">${x}</div>`).join("");
       return `<div class="guide">${phase} · ${guide}</div><div class="feed">${feed}</div>`;
     }
     function statsHtml(p) {
@@ -372,7 +385,7 @@
       const p = state.players[0], c = p.hand[i], cd = card(c);
       if (state.phase === "action" && cd.type.includes("action") && p.actions > 0) { sound("card"); await playAction(p, i); }
       else if (state.phase === "buy" && cd.type === "treasure") { sound("card"); toggleTreasure(p, c); }
-      else sound("block");
+      else { sound("block"); log("지금은 선택할 수 없습니다."); }
       render();
     }
     async function onSupply(id) {
@@ -382,7 +395,7 @@
       if (p.buys <= 0) return sound("block"), log("남은 구입이 없습니다."), render();
       if (p.coins < cd.cost) return sound("warning"), log("재화가 부족합니다."), render();
       sound("buy");
-      p.coins -= cd.cost; p.buys--; gain(p, id); render();
+      p.coins -= cd.cost; p.buys--; discardSelectedTreasures(p); gain(p, id); render();
       if (checkEnd()) endGame();
     }
     function playTreasure(p, i) {
@@ -403,6 +416,18 @@
         p.coins += coins;
         log(`${p.name}: ${card(c).name} 선택 (+${coins} 재화)`);
       }
+    }
+    function discardSelectedTreasures(p) {
+      if (!selectedTreasures.size) return;
+      const used = [];
+      for (let i=p.hand.length-1;i>=0;i--) {
+        const c = p.hand[i];
+        if (selectedTreasures.has(c.uid) && cards[c.id].type === "treasure") {
+          used.push(...p.hand.splice(i, 1));
+        }
+      }
+      selectedTreasures.clear();
+      p.discard.push(...used.reverse());
     }
     async function playAction(p, i, free=false) {
       let c;
@@ -604,11 +629,17 @@
       if (!items.length && min===0) $("modalOk").onclick = () => { sound("confirm"); close([]); };
     }
 
-    $("startBtn").onclick = () => { sound("confirm"); startGame(); };
+    $("startBtn").onclick = async () => {
+      sound("confirm");
+      $("startBtn").disabled = true;
+      await startGame();
+      $("startBtn").disabled = false;
+    };
     $("buyPhaseBtn").onclick = () => { sound("click"); beginBuyPhase(); };
     $("endTurnBtn").onclick = () => { sound("confirm"); endTurn(); };
     $("restartBtn").onclick = () => { sound("click"); location.reload(); };
     initChoices();
+    preloadCardImages();
   </script>
 </body>
 </html>
