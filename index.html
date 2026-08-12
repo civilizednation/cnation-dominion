@@ -26,10 +26,11 @@
     .opponent { height: 11%; min-height: 96px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
     .player { height: 31%; min-height: 224px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
     .player { border-top: 1px solid #4f3827; border-bottom: 0; background: #21150f; }
-    .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 26px; font-size: 12px; color: #e9d8b8; }
+    .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 34px; font-size: 12px; color: #e9d8b8; }
+    .section-label { display: inline-grid; place-items: center; min-width: 76px; height: 30px; padding: 0 12px; border-radius: 6px; background: #2f6f68; color: #fff8d9; border: 1px solid #e1bd64; box-shadow: inset 0 1px 0 #ffffff24, 0 2px 8px #0007; font-size: 18px; font-weight: 900; line-height: 1; white-space: nowrap; }
     .stats { display: flex; gap: 7px; flex-wrap: nowrap; overflow-x: auto; }
     .pill { padding: 3px 7px; border-radius: 999px; background: #3a281c; border: 1px solid #6a5035; white-space: nowrap; }
-    .hand { height: calc(100% - 28px); display: flex; gap: 6px; overflow-x: auto; align-items: center; }
+    .hand { height: calc(100% - 36px); display: flex; gap: 6px; overflow-x: auto; align-items: center; }
     .mini-card { flex: 0 0 auto; width: 62px; height: 96px; border-radius: 6px; background: #5b4228; border: 1px solid #8a704f; overflow: hidden; position: relative; box-shadow: 0 3px 12px #0007; }
     .player .mini-card { width: calc((100vw - 50px) / 6); max-width: 128px; height: auto; aspect-ratio: 31 / 48; }
     .mini-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -37,23 +38,25 @@
     .mini-card.disabled { opacity: .45; filter: grayscale(.35); }
     .mini-card.selected { border-color: #f4cf6d; box-shadow: 0 0 0 3px #f4cf6d, 0 8px 20px #0008; transform: translateY(-5px); }
     .mini-card .tag { position: absolute; left: 3px; bottom: 3px; right: 3px; padding: 2px; border-radius: 4px; background: #000a; font-size: 10px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .center { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px; gap: 8px; }
-    .status { min-height: 62px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: stretch; }
-    .message { background: #2f2118; border: 1px solid #604832; border-radius: 8px; padding: 8px 10px; font-size: 13px; overflow: auto; }
+    .player .hand { align-items: flex-start; padding-top: 2px; }
+    .center { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px; gap: 6px; }
+    .status { min-height: 74px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: stretch; }
+    .message { background: #2f2118; border: 1px solid #604832; border-radius: 8px; padding: 7px 10px; font-size: 12.375px; line-height: 1.35; overflow: auto; color: #ead7b8; }
+    .message .guide { color: #fff0c2; font-weight: 800; margin-bottom: 4px; }
+    .message .feed { color: #d8c3a1; font-size: .95em; }
     .actions { display: flex; flex-direction: column; gap: 6px; }
     .action-btn { min-width: 92px; flex: 1; border-radius: 8px; background: #684426; font-weight: 800; font-size: 13px; }
     .action-btn.primary { background: #d7a93f; color: #26170c; }
     .supply { flex: 1; min-height: 0; display: grid; grid-template-rows: auto 1fr; gap: 6px; }
-    .supply-title { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #d9c29d; }
+    .supply-title { display: flex; justify-content: space-between; align-items: center; min-height: 34px; font-size: 12px; color: #d9c29d; }
     .supply-grid { min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; align-content: start; padding-bottom: 4px; }
-    .supply-card { position: relative; min-height: 106px; border-radius: 7px; overflow: hidden; background: #3a291e; border: 1px solid #775d3f; box-shadow: 0 4px 12px #0006; }
+    .supply-card { position: relative; min-height: 124px; border-radius: 7px; overflow: hidden; background: #3a291e; border: 1px solid #775d3f; box-shadow: 0 4px 12px #0006; }
     .supply-card.selected { outline: 3px solid #f4cf6d; outline-offset: -3px; }
     .supply-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .supply-card.empty img { opacity: .25; filter: grayscale(1); }
     .badge { position: absolute; left: 4px; top: 4px; min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 999px; background: #f0c861; color: #25180f; font-weight: 900; font-size: 12px; border: 2px solid #3b281a; }
     .count { position: absolute; right: 4px; top: 4px; min-width: 22px; height: 22px; display: grid; place-items: center; border-radius: 999px; background: #21150fcc; color: #fff4d5; font-size: 12px; border: 1px solid #b18b55; }
     .name { position: absolute; left: 3px; right: 3px; bottom: 3px; padding: 3px 2px; border-radius: 5px; background: #000b; text-align: center; font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .log { height: 76px; border-radius: 8px; background: #160f0b; border: 1px solid #493423; overflow: auto; padding: 8px 10px; font-size: 12.375px; line-height: 1.35; color: #d8c3a1; }
     .modal { position: absolute; inset: 0; display: none; align-items: end; background: #0009; z-index: 10; }
     .modal.active { display: flex; }
     .modal-box { width: 100%; max-height: 76%; background: #2a1b12; border-top: 2px solid #d2a24a; border-radius: 16px 16px 0 0; padding: 14px; overflow: auto; }
@@ -71,14 +74,14 @@
       .option-grid { grid-template-columns: 1fr; }
       .opponent { height: 11%; min-height: 92px; }
       .player { height: 31%; min-height: 190px; }
-      .status { min-height: 58px; grid-template-columns: 1fr 88px; }
-      .message { font-size: 12px; }
+      .status { min-height: 68px; grid-template-columns: 1fr 88px; }
+      .message { font-size: 11.25px; }
       .action-btn { min-width: 0; font-size: 12px; }
+      .section-label { min-width: 68px; height: 28px; padding: 0 10px; font-size: 16px; }
       .supply-grid { grid-template-columns: repeat(5, 1fr); }
-      .supply-card { min-height: 94px; }
+      .supply-card { min-height: 108px; }
       .mini-card { width: 54px; height: 84px; }
       .player .mini-card { width: calc((100vw - 50px) / 6); min-width: 58px; height: auto; }
-      .log { height: 68px; font-size: 11.25px; }
       .modal .cards { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
@@ -108,7 +111,7 @@
     <section id="gameScreen" class="screen game">
       <div class="opponent">
         <div class="bar">
-          <strong>컴퓨터</strong>
+          <strong class="section-label">컴퓨터</strong>
           <div id="cpuStats" class="stats"></div>
         </div>
         <div id="cpuHand" class="hand"></div>
@@ -116,7 +119,7 @@
       <div class="center">
         <div class="supply">
           <div class="supply-title">
-            <strong>공급처</strong>
+            <strong class="section-label">공급처</strong>
             <span id="phaseLabel"></span>
           </div>
           <div id="supplyGrid" class="supply-grid"></div>
@@ -128,11 +131,10 @@
             <button id="endTurnBtn" class="action-btn primary">턴 종료</button>
           </div>
         </div>
-        <div id="log" class="log"></div>
       </div>
       <div class="player">
         <div class="bar">
-          <strong>내 덱</strong>
+          <strong class="section-label">내 덱</strong>
           <div id="playerStats" class="stats"></div>
         </div>
         <div id="playerHand" class="hand"></div>
@@ -306,14 +308,13 @@
       if (!state) return;
       const p = state.players[0], cpu = state.players[1], active = state.players[state.current];
       $("phaseLabel").textContent = `${active.name} 턴 · ${state.phase === "action" ? "액션" : "구매"} 단계`;
-      $("message").innerHTML = active.ai ? "컴퓨터가 생각 중입니다." : helpText();
+      $("message").innerHTML = messageHtml(active);
       $("playerStats").innerHTML = statsHtml(p);
       $("cpuStats").innerHTML = statsHtml(cpu);
       selectedTreasures = new Set([...selectedTreasures].filter(u=>p.hand.some(c=>c.uid===u)));
       $("playerHand").innerHTML = p.hand.map((c,i)=>handHtml(c,i, state.current===0)).join("");
       $("cpuHand").innerHTML = cpu.hand.map(()=>`<div class="mini-card back">?</div>`).join("");
       $("supplyGrid").innerHTML = Object.keys(state.supply).map(id=>supplyHtml(id)).join("");
-      $("log").innerHTML = state.log.map(x=>`<div>${x}</div>`).join("");
       $("buyPhaseBtn").disabled = state.current !== 0 || state.phase !== "action" || awaiting;
       $("endTurnBtn").disabled = state.current !== 0 || awaiting;
       document.querySelectorAll("[data-hand]").forEach(el=>el.onclick=()=>onHand(+el.dataset.hand));
@@ -323,6 +324,11 @@
       return state.phase === "action"
         ? "액션 카드를 터치해 사용하세요. 더 사용할 액션이 없으면 구매 단계로 넘어가세요."
         : "재화 카드를 터치해 사용한 뒤 공급처 카드를 터치해 구매하세요.";
+    }
+    function messageHtml(active) {
+      const guide = active.ai ? "컴퓨터가 생각 중입니다." : helpText();
+      const feed = state.log.slice(0, 3).map(x=>`<div>${x}</div>`).join("");
+      return `<div class="guide">${guide}</div><div class="feed">${feed}</div>`;
     }
     function statsHtml(p) {
       const total = p.deck.length + p.discard.length + p.hand.length + p.play.length;
