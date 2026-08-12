@@ -248,6 +248,7 @@
           card: [520, 0.07, 0.045],
           buy: [760, 0.09, 0.055],
           block: [180, 0.08, 0.04],
+          warning: [150, 0.16, 0.075],
           confirm: [880, 0.06, 0.05]
         }[kind] || [620, 0.045, 0.035];
         const osc = audioCtx.createOscillator();
@@ -260,6 +261,19 @@
         osc.connect(gain).connect(audioCtx.destination);
         osc.start(now);
         osc.stop(now + settings[1] + 0.01);
+        if (kind === "warning") {
+          const osc2 = audioCtx.createOscillator();
+          const gain2 = audioCtx.createGain();
+          const next = now + 0.09;
+          osc2.type = "sawtooth";
+          osc2.frequency.setValueAtTime(settings[0] * 0.82, next);
+          gain2.gain.setValueAtTime(0.0001, next);
+          gain2.gain.exponentialRampToValueAtTime(settings[2] * 1.5, next + 0.01);
+          gain2.gain.exponentialRampToValueAtTime(0.0001, next + settings[1]);
+          osc2.connect(gain2).connect(audioCtx.destination);
+          osc2.start(next);
+          osc2.stop(next + settings[1] + 0.01);
+        }
       } catch {}
     }
 
@@ -366,7 +380,7 @@
       const p = state.players[0], cd = cards[id];
       if (state.supply[id] <= 0) return sound("block"), log("그 카드 더미가 비었습니다."), render();
       if (p.buys <= 0) return sound("block"), log("남은 구입이 없습니다."), render();
-      if (p.coins < cd.cost) return sound("block"), log("재화가 부족합니다."), render();
+      if (p.coins < cd.cost) return sound("warning"), log("재화가 부족합니다."), render();
       sound("buy");
       p.coins -= cd.cost; p.buys--; gain(p, id); render();
       if (checkEnd()) endGame();
