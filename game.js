@@ -152,7 +152,8 @@ function newPlayer(name, ai=false) {
 }
 
 async function startGame() {
-  if (!window.CNationMini?.enabled) await preloadCardImages();
+  /* 본게임 화면을 먼저 시작하고 카드 이미지는 뒤에서 불러온다. */
+  if (!window.CNationMini?.enabled) preloadCardImages();
   uid = 1;
   selectedTreasures.clear();
   const mode = modes[selectedMode];
@@ -481,9 +482,18 @@ function openModal(title, items, min, max, resolve, cancelResolve=null, okText="
 
 $("startBtn").onclick = async () => {
   sound("confirm");
-  $("startBtn").disabled = true;
-  await startGame();
-  $("startBtn").disabled = false;
+  const button = $("startBtn");
+  button.disabled = true;
+
+  try {
+    await startGame();
+  } catch (error) {
+    console.error(error);
+    sound("warning");
+    alert("게임을 시작하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도하세요.");
+  } finally {
+    button.disabled = false;
+  }
 };
 $("miniStartBtn").onclick = async () => {
   sound("confirm");
@@ -510,4 +520,3 @@ $("buyPhaseBtn").onclick = () => { sound("click"); beginBuyPhase(); };
 $("endTurnBtn").onclick = () => { sound("confirm"); endTurn(); };
 $("restartBtn").onclick = () => { sound("click"); location.reload(); };
 initChoices();
-
