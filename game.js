@@ -520,3 +520,4 @@ $("buyPhaseBtn").onclick = () => { sound("click"); beginBuyPhase(); };
 $("endTurnBtn").onclick = () => { sound("confirm"); endTurn(); };
 $("restartBtn").onclick = () => { sound("click"); location.reload(); };
 initChoices();
+
