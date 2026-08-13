@@ -91,25 +91,27 @@
     style.id = "gameOpponentControlStyles";
     style.textContent = `
       .app:not(.mini-mode) .game-opponent-tools {
-        flex: 0 0 clamp(78px, 22vw, 150px);
-        width: clamp(78px, 22vw, 150px);
-        height: 96px;
+        flex: 1 1 260px;
+        min-width: 240px;
+        height: 100%;
+        min-height: 0;
         display: grid;
-        grid-template-rows: 32px minmax(0, 1fr);
-        gap: 5px;
+        grid-template-columns: minmax(92px, 0.75fr) minmax(150px, 1.25fr);
+        gap: 8px;
         align-self: center;
       }
 
       .app:not(.mini-mode) .game-exit-button {
         width: 100%;
         min-width: 0;
-        padding: 3px 6px;
+        height: 100%;
+        padding: 4px 8px;
         border: 1px solid #c98e65;
         border-radius: 7px;
         background: linear-gradient(180deg, #86503c, #653225);
         color: #fff7df;
         box-shadow: inset 0 1px 0 #ffffff20, 0 3px 8px #0006;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 900;
         line-height: 1;
       }
@@ -120,7 +122,7 @@
 
       .app:not(.mini-mode) .game-win-condition {
         min-width: 0;
-        padding: 6px 7px;
+        padding: 7px 9px;
         border: 1px solid #7b6141;
         border-radius: 7px;
         background: linear-gradient(145deg, #38291f, #291d16);
@@ -137,14 +139,14 @@
 
       .app:not(.mini-mode) .game-win-condition strong {
         color: #f4cf6d;
-        font-size: 10px;
+        font-size: 11px;
         line-height: 1;
       }
 
       .app:not(.mini-mode) .game-win-mode {
         margin-top: 4px;
         color: #fff4d2;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 900;
         line-height: 1.05;
       }
@@ -152,7 +154,7 @@
       .app:not(.mini-mode) .game-win-description {
         margin-top: 3px;
         color: #d8c5a4;
-        font-size: 9px;
+        font-size: 10px;
         line-height: 1.18;
         white-space: normal;
         word-break: keep-all;
@@ -160,10 +162,10 @@
 
       @media (max-width: 560px) {
         .app:not(.mini-mode) .game-opponent-tools {
-          flex-basis: clamp(68px, 18vw, 96px);
-          width: clamp(68px, 18vw, 96px);
-          height: 84px;
-          grid-template-rows: 27px minmax(0, 1fr);
+          flex-basis: 190px;
+          min-width: 180px;
+          height: 72px;
+          grid-template-columns: minmax(72px, 0.7fr) minmax(104px, 1.3fr);
           gap: 4px;
         }
 

@@ -215,7 +215,7 @@
         min-width: 112px;
         height: 44px;
         display: grid;
-        grid-template-rows: 20px 1fr;
+        grid-template-columns: minmax(48px, .7fr) minmax(62px, 1.3fr);
         gap: 3px;
         margin-left: 3px;
       }
@@ -411,7 +411,7 @@
     },
 
     cardBackHtml() {
-      return `<div class="mini-card back mini-back" aria-label="컴퓨터 손패">CPU<br>카드</div>`;
+      return `<div class="mini-card back mini-back" aria-label="컴퓨터 손패">?</div>`;
     },
 
     supplyHtml(id) {

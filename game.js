@@ -221,11 +221,11 @@ function handHtml(c, i, human) {
   const cd = card(c);
   const playable = human && ((state.phase==="action" && cd.type.includes("action") && state.players[0].actions>0) || (state.phase==="buy" && cd.type==="treasure"));
   const selected = selectedTreasures.has(c.uid);
-  return `<div class="mini-card ${playable?"":"disabled"} ${selected?"selected":""}" data-hand="${i}"><img src="${IMG+cd.img}" alt="${cd.name}"><div class="tag">${cd.name}</div></div>`;
+  return `<div class="mini-card ${playable?"":"disabled"} ${selected?"selected":""}" data-hand="${i}"><img src="${IMG+cd.img}" alt="${cd.name}"></div>`;
 }
 function supplyHtml(id) {
   const cd = cards[id], count = state.supply[id] || 0;
-  return `<button class="supply-card ${count<=0?"empty":""}" data-buy="${id}"><img src="${IMG+cd.img}" alt="${cd.name}"><span class="badge">${cd.cost}</span><span class="count">${count}</span><span class="name">${cd.name}</span></button>`;
+  return `<button class="supply-card ${count<=0?"empty":""}" data-buy="${id}"><img src="${IMG+cd.img}" alt="${cd.name}"><span class="count">${count}</span></button>`;
 }
 
 async function onHand(i) {
@@ -520,4 +520,3 @@ $("buyPhaseBtn").onclick = () => { sound("click"); beginBuyPhase(); };
 $("endTurnBtn").onclick = () => { sound("confirm"); endTurn(); };
 $("restartBtn").onclick = () => { sound("click"); location.reload(); };
 initChoices();
-

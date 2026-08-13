@@ -42,6 +42,8 @@
     .mini-card.disabled { cursor: default; }
     .mini-card.selected { border-color: #f4cf6d; box-shadow: 0 0 0 3px #f4cf6d, 0 8px 20px #0008; transform: translateY(-5px); }
     .mini-card .tag { position: absolute; left: 3px; bottom: 3px; right: 3px; padding: 2px; border-radius: 4px; background: #000a; font-size: 10px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .opponent .hand { gap: 8px; align-items: stretch; }
+    .opponent .mini-card.back { width: clamp(46px, 6vw, 68px); height: 100%; min-height: 0; border-radius: 5px; font-size: 18px; }
     .player .hand { height: auto; align-items: flex-start; padding-top: 2px; }
     .center { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px; gap: 6px; }
     .status { min-height: 74px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: stretch; }
