@@ -366,6 +366,26 @@
       .app.mini-mode .modal .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
       .app.mini-mode .modal-box { padding: 10px; }
       .app.mini-mode .modal h2 { font-size: 16px; }
+      .app.mini-mode .end { padding: 8px; }
+      .app.mini-mode .end-card { width: 100%; max-height: calc(100dvh - 16px); padding: 10px; border-radius: 10px; overflow: auto; }
+      .app.mini-mode .end-card h2 { font-size: 22px; margin-bottom: 6px; }
+      .app.mini-mode .result-summary { padding: 9px; border-radius: 8px; }
+      .app.mini-mode .result-summary strong { font-size: 18px; }
+      .app.mini-mode .result-summary span { font-size: 12px; }
+      .app.mini-mode .result-summary p,
+      .app.mini-mode .result-summary small { font-size: 11px; }
+      .app.mini-mode .result-board { grid-template-columns: 1fr; gap: 8px; margin-top: 8px; }
+      .app.mini-mode .result-player { padding: 8px; }
+      .app.mini-mode .result-player-head h3 { font-size: 15px; }
+      .app.mini-mode .result-player-head strong { font-size: 18px; }
+      .app.mini-mode .result-player-head span { font-size: 10px; }
+      .app.mini-mode .result-holdings { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; max-height: 180px; }
+      .app.mini-mode .result-card-mini { min-height: 78px; padding: 4px; border-radius: 6px; position: relative; }
+      .app.mini-mode .result-card-mini .mini-name { font-size: 10px; }
+      .app.mini-mode .result-card-mini .mini-effect { font-size: 7px; -webkit-line-clamp: 3; }
+      .app.mini-mode .result-card-mini .result-count { position: absolute; right: 3px; bottom: 3px; padding: 1px 4px; border-radius: 999px; background: #0009; color: #fff1a6; font-size: 9px; font-weight: 900; }
+      .app.mini-mode .result-score { font-size: 11px; max-height: 120px; }
+      .app.mini-mode #restartBtn { width: 100%; height: 42px; margin-top: 8px; font-size: 15px; }
       @media (min-width: 561px) {
         .app.mini-mode .supply-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
         .app.mini-mode .player .hand { grid-template-columns: repeat(5, minmax(0, 1fr)); }
@@ -425,6 +445,12 @@
       const cd = cards[item.id];
       const kind = typeKey(cd);
       return `<button type="button" class="supply-card mini-supply type-${kind} card-${item.id}" data-pick="${text(item.uid)}" aria-label="${text(cd.name)}, 비용 ${cd.cost}, ${text(EFFECTS[item.id] || "")}">${cardBody(item.id)}</button>`;
+    },
+
+    resultCardHtml(id, count) {
+      const cd = cards[id];
+      const kind = typeKey(cd);
+      return `<figure class="result-card result-card-mini type-${kind} card-${id}" aria-label="${text(cd.name)} ${count}장">${cardBody(id, true)}<span class="result-count">${count}장</span></figure>`;
     }
   };
 })();

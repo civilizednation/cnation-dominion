@@ -73,10 +73,34 @@
     .modal .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
     .modal .modal-actions button { flex: 1; height: 46px; border-radius: 8px; background: #674224; font-weight: 900; }
     .modal .modal-actions .ok { background: #d7a93f; color: #25180f; }
-    .end { position: absolute; inset: 0; display: none; place-items: center; padding: 20px; background: #000c; z-index: 20; }
+    .end { position: absolute; inset: 0; display: none; place-items: center; padding: 16px; background: #000c; z-index: 20; }
     .end.active { display: grid; }
-    .end-card { width: min(520px, 100%); background: #2e1f16; border: 2px solid #d7a93f; border-radius: 12px; padding: 18px; text-align: center; }
-    .end-card h2 { margin: 0 0 10px; font-size: 28px; }
+    .end-card { width: min(780px, 100%); max-height: calc(100dvh - 32px); background: #2e1f16; border: 2px solid #d7a93f; border-radius: 12px; padding: 16px; text-align: left; overflow: auto; box-shadow: 0 18px 46px #000a; }
+    .end-card h2 { margin: 0 0 8px; font-size: 28px; text-align: center; color: #fff4d2; }
+    #endText { margin: 0; }
+    .result-summary { padding: 12px 14px; border: 1px solid #80613c; border-radius: 10px; background: linear-gradient(145deg, #3a281c, #261911); text-align: center; }
+    .result-summary strong { display: block; color: #f4cf6d; font-size: 24px; }
+    .result-summary span { display: block; margin-top: 4px; color: #fff4d2; font-size: 16px; font-weight: 900; }
+    .result-summary p { margin: 7px 0 0; color: #ead7b8; font-size: 14px; font-weight: 800; }
+    .result-summary small { display: block; margin-top: 5px; color: #bfa984; font-size: 12px; }
+    .result-board { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .result-player { min-width: 0; padding: 12px; border: 1px solid #6b5036; border-radius: 10px; background: #241811; }
+    .result-player-head { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; align-items: baseline; margin-bottom: 10px; }
+    .result-player-head h3 { margin: 0; color: #fff0c8; font-size: 18px; }
+    .result-player-head strong { color: #f4cf6d; font-size: 22px; }
+    .result-player-head span { grid-column: 1 / -1; color: #cbb897; font-size: 12px; }
+    .result-holdings { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; max-height: 260px; overflow: auto; padding-right: 2px; }
+    .result-card { position: relative; min-width: 0; margin: 0; padding: 3px 3px 5px; border: 1px solid #806645; border-radius: 7px; background: #1c130e; box-shadow: 0 4px 10px #0006; }
+    .result-card img { width: 100%; aspect-ratio: 31 / 48; display: block; object-fit: cover; border-radius: 4px; }
+    .result-card figcaption { padding-top: 3px; text-align: center; }
+    .result-card strong, .result-card span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .result-card strong { color: #fff0c8; font-size: 10px; }
+    .result-card span { color: #f4cf6d; font-size: 10px; font-weight: 900; }
+    .result-score { margin-top: 10px; padding-top: 8px; border-top: 1px solid #5e462e; color: #e2d0b2; font-size: 12px; }
+    .result-score div { display: flex; justify-content: space-between; gap: 10px; padding: 2px 0; }
+    .result-score b { color: #fff0c8; }
+    .result-score .total { margin-top: 5px; padding-top: 6px; border-top: 1px solid #7a5b38; color: #f4cf6d; font-size: 14px; font-weight: 900; }
+    #restartBtn { display: block; width: min(300px, 100%); margin: 14px auto 0; }
     @media (max-width: 560px) {
       .title { padding: 10px; gap: 6px; }
       .title h1 { font-size: 25px; }
@@ -91,6 +115,13 @@
       .start-actions { gap: 6px; }
       .title .start-actions .start { min-width: 0; flex-basis: 55%; }
       .title .start-actions .mini-start { flex-basis: 45%; font-size: 13px; }
+      .end { padding: 8px; }
+      .end-card { max-height: calc(100dvh - 16px); padding: 10px; }
+      .result-board { grid-template-columns: 1fr; gap: 8px; }
+      .result-holdings { grid-template-columns: repeat(5, minmax(0, 1fr)); max-height: 180px; }
+      .result-summary strong { font-size: 20px; }
+      .result-summary span { font-size: 13px; }
+      .result-player { padding: 8px; }
       .opponent { height: 11%; min-height: 92px; }
       .player { min-height: 0; padding-top: 5px; padding-bottom: 5px; }
       .status { min-height: 68px; grid-template-columns: 1fr 88px; }

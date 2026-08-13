@@ -429,6 +429,49 @@ function score(p) {
     return sum + (cards[c.id].vp || 0);
   },0);
 }
+function countCardsForResult(p) {
+  const counts = {};
+  for (const c of allCards(p)) counts[c.id] = (counts[c.id] || 0) + 1;
+  return counts;
+}
+function cardScoreForResult(id, count, totalCards) {
+  if (id === "gardens") return count * Math.floor(totalCards / 10);
+  return count * (cards[id].vp || 0);
+}
+function resultScoreRows(p) {
+  const counts = countCardsForResult(p);
+  const totalCards = allCards(p).length;
+  return Object.keys(counts)
+    .map(id => ({id, count: counts[id], points: cardScoreForResult(id, counts[id], totalCards)}))
+    .filter(row => row.points !== 0 || cards[row.id].type === "victory" || cards[row.id].type === "curse")
+    .sort((a,b) => (cards[b.id].vp || 0) - (cards[a.id].vp || 0) || cards[a.id].cost - cards[b.id].cost);
+}
+function resultCardHtml(id, count) {
+  const cd = cards[id];
+  if (window.CNationMini?.enabled && window.CNationMini.resultCardHtml) {
+    return window.CNationMini.resultCardHtml(id, count, cardScoreForResult(id, count, 0));
+  }
+  return `<figure class="result-card"><img src="${IMG+cd.img}" alt="${cd.name}"><figcaption><strong>${cd.name}</strong><span>${count}장</span></figcaption></figure>`;
+}
+function resultPlayerHtml(p) {
+  const counts = countCardsForResult(p);
+  const totalCards = allCards(p).length;
+  const rows = resultScoreRows(p);
+  const holdings = Object.keys(counts)
+    .sort((a,b) => cards[a].cost - cards[b].cost || cards[a].name.localeCompare(cards[b].name, "ko"))
+    .map(id => resultCardHtml(id, counts[id]))
+    .join("");
+  const scoreRows = rows.map(row => `<div><span>${cards[row.id].name} ${row.count}장</span><b>${row.points}점</b></div>`).join("");
+  return `<section class="result-player"><div class="result-player-head"><h3>${p.name}</h3><strong>${score(p)}점</strong><span>총 ${totalCards}장 · ${p.turns}턴</span></div><div class="result-holdings">${holdings}</div><div class="result-score">${scoreRows || "<div><span>승점 카드 없음</span><b>0점</b></div>"}<div class="total"><span>총점</span><b>${score(p)}점</b></div></div></section>`;
+}
+function resultSummaryHtml(ps, s0, s1, title) {
+  const mode = modes[state.mode];
+  const reason = checkEnd() ? mode.desc : "승리 조건 달성";
+  const winner = s0 === s1
+    ? (ps[0].turns <= ps[1].turns ? "동점이지만 턴 수 기준으로 내가 승리했습니다." : "동점이지만 턴 수 기준으로 컴퓨터가 승리했습니다.")
+    : (s0 > s1 ? "내가 컴퓨터보다 높은 점수로 승리했습니다." : "컴퓨터가 더 높은 점수로 승리했습니다.");
+  return `<div class="result-summary"><strong>${title}</strong><span>내 점수 ${s0}점 · 컴퓨터 ${s1}점</span><p>${winner}</p><small>종료 조건: ${reason}</small></div><div class="result-board">${resultPlayerHtml(ps[0])}${resultPlayerHtml(ps[1])}</div>`;
+}
 function checkEnd() {
   const mode = modes[state.mode];
   const empty = Object.values(state.supply).filter(v=>v<=0).length;
@@ -438,7 +481,8 @@ function endGame() {
   const ps = state.players, s0 = score(ps[0]), s1 = score(ps[1]);
   let title = s0 > s1 ? "승리!" : s0 < s1 ? "패배" : ps[0].turns <= ps[1].turns ? "동점 승리" : "동점 패배";
   $("endTitle").textContent = title;
-  $("endText").innerHTML = `내 점수 ${s0}점 · 컴퓨터 ${s1}점<br>내 턴 ${ps[0].turns}회 · 컴퓨터 턴 ${ps[1].turns}회`;
+  $("endText").innerHTML = resultSummaryHtml(ps, s0, s1, title);
+  $("restartBtn").textContent = "확인";
   $("endScreen").classList.add("active");
   render();
 }
