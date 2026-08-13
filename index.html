@@ -13,6 +13,7 @@
     .screen.active { display: flex; }
     .title { padding: 14px; flex-direction: column; gap: 8px; overflow: hidden; }
     .title h1 { margin: 0; font-size: 30px; line-height: 1.05; }
+    .title-version { margin-left: .35em; font-size: .5em; font-weight: 400; white-space: nowrap; }
     .title p { margin: 3px 0 0; color: #dfcda9; }
     .panel { background: #352317; border: 1px solid #6f563b; border-radius: 8px; padding: 8px 10px; }
     .option-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -145,7 +146,7 @@
   <main class="app">
     <section id="titleScreen" class="screen title active">
       <div>
-        <h1>cnation DOMINION (도미니언)</h1>
+        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.0.0</span></h1>
         <p>컴퓨터와 즐기는 1:1 도미니언 웹게임</p>
       </div>
       <div class="panel">
