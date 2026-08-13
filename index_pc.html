@@ -12,33 +12,39 @@
     .screen { position: absolute; inset: 0; display: none; }
     .screen.active { display: grid; }
 
-    .title { place-items: center; padding: 34px; overflow: auto; }
-    .title-wrap { width: min(1180px, 96vw); display: grid; grid-template-columns: minmax(360px, .86fr) minmax(620px, 1.14fr); gap: 22px; align-items: stretch; }
-    .title-hero { padding: 28px; border: 1px solid #80633f; border-radius: 14px; background: linear-gradient(145deg, #3b281b, #2a1c14); box-shadow: 0 14px 34px #0008; }
-    .title h1 { margin: 0; color: #fff4d2; font-family: Georgia, "Times New Roman", "Malgun Gothic", serif; font-size: 48px; line-height: 1.04; }
-    .title-version { margin-left: .35em; font-family: system-ui, "Malgun Gothic", sans-serif; font-size: .5em; font-weight: 400; white-space: nowrap; }
-    .title p { margin: 12px 0 0; color: #dfcda9; font-size: 17px; line-height: 1.55; }
-    .title-note { margin-top: 22px; padding: 14px 16px; border-left: 4px solid #d7a93f; border-radius: 6px 10px 10px 6px; background: #4b3321; color: #ead7b8; line-height: 1.55; }
-    .title-options { display: grid; gap: 12px; }
-    .panel { background: #352317; border: 1px solid #6f563b; border-radius: 10px; padding: 13px; box-shadow: 0 8px 18px #0005; }
-    .panel > strong { display: block; margin-bottom: 10px; color: #fff0c8; font-size: 16px; }
-    .deck-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-    .option-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
-    .choice { min-height: 54px; padding: 9px 10px; border-radius: 8px; background: #4a3322; border: 2px solid transparent; text-align: left; overflow: hidden; }
-    .choice strong { display: block; color: #fff8df; font-size: 15px; line-height: 1.15; }
-    .choice span { display: block; color: #d7c09a; font-size: 12px; line-height: 1.25; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .title { place-items: start center; padding: 8px 10px; overflow: hidden; }
+    .title-wrap { width: min(100%, 1880px); height: calc(100vh - 16px); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 8px; align-items: stretch; }
+    .title-hero { padding: 8px 14px; border: 1px solid #80633f; border-radius: 10px; background: linear-gradient(145deg, #3b281b, #2a1c14); box-shadow: 0 8px 20px #0007; text-align: center; }
+    .title h1 { margin: 0; color: #fff4d2; font-family: "Trebuchet MS", "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; font-size: clamp(30px, 3.1vw, 42px); line-height: 1.02; letter-spacing: .01em; font-weight: 900; }
+    .title-version { margin-left: .45em; font-family: "Segoe UI", "Malgun Gothic", sans-serif; font-size: .44em; font-weight: 400; white-space: nowrap; color: #f2dfb8; }
+    .title p { margin: 4px 0 0; color: #dfcda9; font-size: 15px; line-height: 1.2; }
+    .title-options { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 8px; }
+    .title-bottom { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .panel { background: #352317; border: 1px solid #6f563b; border-radius: 8px; padding: 8px 12px; box-shadow: 0 6px 14px #0005; }
+    .panel > strong { display: block; margin-bottom: 6px; color: #fff0c8; font-size: 16px; }
+    .deck-panel { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+    .deck-grid { min-height: 0; overflow: hidden; display: grid; grid-template-columns: 1fr; gap: 4px; padding-right: 0; }
+    .option-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .choice { min-height: 50px; padding: 8px 10px; border-radius: 7px; background: #4a3322; border: 2px solid transparent; text-align: left; overflow: hidden; }
+    .choice strong { display: block; color: #fff8df; font-size: 15px; line-height: 1.12; }
+    .choice span { display: block; color: #d7c09a; font-size: 12px; line-height: 1.2; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .choice.selected { border-color: #f4cf6d; background: #5f4027; }
-    .start-actions { display: flex; justify-content: end; gap: 10px; }
-    .start { min-width: 190px; height: 52px; border-radius: 9px; background: #d7a93f; color: #2b1a0e; font-weight: 900; font-size: 18px; box-shadow: 0 6px 18px #0005; }
-    .exit-start { min-width: 140px; background: #74412f; color: #fff7df; border: 1px solid #c98e65; }
+    .deck-grid .choice { min-height: 0; height: 33px; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 9px; align-items: center; padding: 4px 10px; border-radius: 7px; }
+    .deck-grid .choice strong { font-size: 15px; }
+    .deck-grid .choice span { margin-top: 0; font-size: 12.5px; }
+    .start-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-self: stretch; }
+    .start-panel { display: grid; grid-template-rows: auto 1fr; }
+    .start { min-width: 0; height: 42px; border-radius: 8px; background: #d7a93f; color: #2b1a0e; font-weight: 900; font-size: 15px; box-shadow: 0 5px 14px #0005; }
+    .exit-start { background: #74412f; color: #fff7df; border: 1px solid #c98e65; }
 
     .game { grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; overflow: hidden; }
     .opponent, .player { background: #1b120d; border-color: #4f3827; }
     .opponent { padding: 7px 16px 9px; border-bottom: 1px solid #4f3827; }
     .player { padding: 7px 16px 10px; border-top: 1px solid #4f3827; background: #21150f; }
-    .bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 30px; color: #e9d8b8; }
+    .bar { display: flex; align-items: center; justify-content: flex-start; gap: 12px; height: 30px; color: #e9d8b8; }
     .section-label { display: inline-grid; place-items: center; min-width: 92px; height: 30px; padding: 0 14px; border-radius: 6px; background: #2f6f68; color: #fff8d9; border: 1px solid #e1bd64; box-shadow: inset 0 1px 0 #ffffff24, 0 2px 8px #0007; font-size: 18px; font-weight: 900; white-space: nowrap; }
     .stats { display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
+    .player .stats { flex: 0 1 auto; }
     .pill { padding: 4px 9px; border-radius: 999px; background: #3a281c; border: 1px solid #6a5035; color: #f0dfc2; font-size: 13px; white-space: nowrap; }
     .hand { display: flex; gap: 8px; overflow-x: auto; align-items: stretch; }
     .opponent .hand { height: 60px; padding-top: 6px; }
@@ -58,14 +64,18 @@
     .supply-card.selected { outline: 3px solid #f4cf6d; outline-offset: -3px; }
     .supply-card.empty img { opacity: .25; filter: grayscale(1); }
     .count { position: absolute; right: 5px; top: 5px; min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 999px; background: #21150fcc; color: #fff4d5; font-size: 14px; font-weight: 900; border: 1px solid #b18b55; }
+    .count.warn { color: #ffb347; border-color: #ffb347; }
+    .count.danger { color: #ff4d42; border-color: #ff4d42; }
 
-    .status { width: 320px; min-height: 0; display: grid; grid-template-rows: minmax(186px, 1fr) 52px; gap: 9px; align-self: end; transform: translate(-38px, 16px); }
+    .status { width: 320px; min-height: 0; display: grid; grid-template-rows: minmax(186px, 1fr); gap: 9px; align-self: end; transform: translate(-38px, 16px); }
     .message { min-height: 0; background: linear-gradient(145deg, #342318, #281b13); border: 1px solid #80613c; border-radius: 8px; padding: 14px 13px; font-size: 15px; line-height: 1.44; overflow: auto; color: #ead7b8; box-shadow: inset 0 1px 0 #ffffff12, 0 4px 12px #0005; }
     .message .guide { color: #fff0c2; font-weight: 800; margin-bottom: 6px; }
     .message .feed { color: #d8c3a1; font-size: .96em; }
     .message .feed .recent { color: #fff6d4; font-weight: 900; }
     .actions { min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .player .actions { flex: 0 0 230px; height: 30px; }
     .action-btn { min-width: 0; border-radius: 8px; background: #684426; font-weight: 900; font-size: 15px; box-shadow: inset 0 1px 0 #ffffff14, 0 4px 10px #0006; }
+    .player .action-btn { border-radius: 6px; font-size: 13px; }
     .action-btn.primary { background: #d7a93f; color: #26170c; }
 
     .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: #0009; z-index: 10; }
@@ -111,7 +121,7 @@
 
     @media (max-height: 900px) {
       .player .hand { height: calc(var(--pc-card-h, 210px) + 8px); }
-      .status { grid-template-rows: minmax(168px, 1fr) 48px; transform: translate(-38px, 14px); }
+      .status { grid-template-rows: minmax(168px, 1fr); transform: translate(-38px, 14px); }
       .message { font-size: 14px; line-height: 1.34; padding: 10px 12px; }
       .action-btn { font-size: 14px; }
       .result-holdings { grid-template-columns: repeat(7, minmax(0, 1fr)); max-height: 330px; }
@@ -124,26 +134,30 @@
     <section id="titleScreen" class="screen title active">
       <div class="title-wrap">
         <div class="title-hero">
-          <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.0.0 PC</span></h1>
-          <p>컴퓨터와 노트북의 가로 와이드 화면에 맞춘 PC 전용 본게임입니다.</p>
-          <div class="title-note">마우스로 카드를 클릭해 진행합니다. 액션 단계에서 액션 카드를 사용하고, 구매 단계에서 재화 카드를 선택한 뒤 공급처 카드를 구매하세요.</div>
+          <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.0.1 PC</span></h1>
+          <p>PC/노트북 버전</p>
         </div>
         <div class="title-options">
-          <div class="panel">
+          <div class="panel deck-panel">
             <strong>왕국 카드 조합</strong>
             <div id="deckChoices" class="deck-grid"></div>
           </div>
-          <div class="panel">
-            <strong>컴퓨터 난이도</strong>
-            <div id="difficultyChoices" class="option-grid"></div>
-          </div>
-          <div class="panel">
-            <strong>승패 조건</strong>
-            <div id="modeChoices" class="option-grid"></div>
-          </div>
-          <div class="start-actions">
-            <button id="startBtn" class="start">PC 게임 시작</button>
-            <button id="titleExitBtn" class="start exit-start">게임 종료</button>
+          <div class="title-bottom">
+            <div class="panel">
+              <strong>컴퓨터 난이도</strong>
+              <div id="difficultyChoices" class="option-grid"></div>
+            </div>
+            <div class="panel">
+              <strong>승패 조건</strong>
+              <div id="modeChoices" class="option-grid"></div>
+            </div>
+            <div class="panel start-panel">
+              <strong>게임 메뉴</strong>
+              <div class="start-actions">
+                <button id="startBtn" class="start">PC 게임 시작</button>
+                <button id="titleExitBtn" class="start exit-start">게임 종료</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -166,15 +180,15 @@
         </div>
         <div class="status">
           <div id="message" class="message"></div>
-          <div class="actions">
-            <button id="buyPhaseBtn" class="action-btn">구매 단계</button>
-            <button id="endTurnBtn" class="action-btn primary">턴 종료</button>
-          </div>
         </div>
       </div>
       <div class="player">
         <div class="bar">
           <strong class="section-label">내 덱</strong>
+          <div class="actions">
+            <button id="buyPhaseBtn" class="action-btn">구매 단계</button>
+            <button id="endTurnBtn" class="action-btn primary">턴 종료</button>
+          </div>
           <div id="playerStats" class="stats"></div>
         </div>
         <div id="playerHand" class="hand"></div>

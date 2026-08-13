@@ -363,6 +363,14 @@
         font-size: 10px;
         font-weight: 900;
       }
+      .app.mini-mode .mini-count.warn {
+        color: #ffb347;
+        border-color: #ffb347;
+      }
+      .app.mini-mode .mini-count.danger {
+        color: #ff4d42;
+        border-color: #ff4d42;
+      }
       .app.mini-mode .modal .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
       .app.mini-mode .modal-box { padding: 10px; }
       .app.mini-mode .modal h2 { font-size: 16px; }
@@ -438,7 +446,8 @@
       const cd = cards[id];
       const kind = typeKey(cd);
       const count = state.supply[id] || 0;
-      return `<button type="button" class="supply-card mini-supply type-${kind} card-${id} ${count <= 0 ? "empty" : ""}" data-buy="${id}" aria-label="${text(cd.name)}, 비용 ${cd.cost}, 남은 카드 ${count}, ${text(EFFECTS[id] || "")}">${cardBody(id)}<span class="mini-count" aria-label="남은 수량 ${count}">${count}</span></button>`;
+      const countState = count <= 1 ? "danger" : count <= 3 ? "warn" : "";
+      return `<button type="button" class="supply-card mini-supply type-${kind} card-${id} ${count <= 0 ? "empty" : ""}" data-buy="${id}" aria-label="${text(cd.name)}, 비용 ${cd.cost}, 남은 카드 ${count}, ${text(EFFECTS[id] || "")}">${cardBody(id)}<span class="mini-count ${countState}" aria-label="남은 수량 ${count}">${count}</span></button>`;
     },
 
     modalCardHtml(item) {

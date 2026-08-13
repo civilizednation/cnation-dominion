@@ -28,8 +28,8 @@
     const style = document.createElement("style");
     style.id = "rulesGuidePcStyles";
     style.textContent = `
-      .title .start-actions{display:grid;grid-template-columns:1.1fr 1fr 1fr .9fr;gap:10px}
-      .title .start-actions .start,.title .start-actions .deck-intro-start,.title .start-actions .rules-guide-start{width:100%;min-width:0;max-width:none;height:52px;padding:0 8px;font-size:16px;white-space:nowrap}
+      .title .start-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .title .start-actions .start,.title .start-actions .deck-intro-start,.title .start-actions .rules-guide-start{width:100%;min-width:0;max-width:none;height:42px;padding:0 8px;font-size:15px;white-space:nowrap}
       .title .start-actions .rules-guide-start{background:#72512a;color:#fff6df;border:1px solid #d5b56b}
       .rules-guide-screen{display:none;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;background:radial-gradient(circle at 80% 5%,#8a653455 0,transparent 30%),radial-gradient(circle at 8% 26%,#356b6550 0,transparent 28%),#21150f;padding:0}
       .rules-guide-screen.active{display:block}

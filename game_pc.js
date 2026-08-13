@@ -231,9 +231,14 @@ function handHtml(c, i, human) {
   const selected = selectedTreasures.has(c.uid);
   return `<div class="mini-card ${playable?"":"disabled"} ${selected?"selected":""}" data-hand="${i}"><img src="${IMG+cd.img}" alt="${cd.name}"></div>`;
 }
+function supplyCountClass(count) {
+  if (count <= 1) return "danger";
+  if (count <= 3) return "warn";
+  return "";
+}
 function supplyHtml(id) {
   const cd = cards[id], count = state.supply[id] || 0;
-  return `<button class="supply-card ${count<=0?"empty":""}" data-buy="${id}"><img src="${IMG+cd.img}" alt="${cd.name}"><span class="count">${count}</span></button>`;
+  return `<button class="supply-card ${count<=0?"empty":""}" data-buy="${id}"><img src="${IMG+cd.img}" alt="${cd.name}"><span class="count ${supplyCountClass(count)}">${count}</span></button>`;
 }
 
 async function onHand(i) {
@@ -526,12 +531,23 @@ function openModal(title, items, min, max, resolve, cancelResolve=null, okText="
   if (!items.length && min===0) $("modalOk").onclick = () => { sound("confirm"); close([]); };
 }
 
+async function enterFullscreen() {
+  const root = document.documentElement;
+  if (document.fullscreenElement) return;
+  try {
+    if (root.requestFullscreen) await root.requestFullscreen();
+    else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    else if (root.msRequestFullscreen) root.msRequestFullscreen();
+  } catch {}
+}
+
 $("startBtn").onclick = async () => {
   sound("confirm");
   const button = $("startBtn");
   button.disabled = true;
 
   try {
+    await enterFullscreen();
     await startGame();
   } catch (error) {
     console.error(error);
