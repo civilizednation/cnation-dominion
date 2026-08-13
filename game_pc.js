@@ -117,24 +117,6 @@ function preloadCardImages() {
   return preloadPromise;
 }
 
-function loadMiniScript() {
-  if (window.CNationMini) return Promise.resolve(window.CNationMini);
-  return new Promise((resolve, reject) => {
-    const oldScript = document.querySelector('script[data-mini-game]');
-    if (oldScript) {
-      oldScript.addEventListener("load", () => resolve(window.CNationMini), {once:true});
-      oldScript.addEventListener("error", () => reject(new Error("mini.js를 불러오지 못했습니다.")), {once:true});
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "./mini.js";
-    script.dataset.miniGame = "true";
-    script.onload = () => resolve(window.CNationMini);
-    script.onerror = () => reject(new Error("mini.js를 불러오지 못했습니다."));
-    document.head.appendChild(script);
-  });
-}
-
 function initChoices() {
   $("deckChoices").innerHTML = presets.map((p,i)=>`<button class="choice ${i===selectedPreset?"selected":""}" data-deck="${i}"><strong>${i+1}. ${p.title}</strong><span>${p.desc} · ${p.ids.map(id=>cards[id].name).join(", ")}</span></button>`).join("");
   $("difficultyChoices").innerHTML = Object.entries(diffs).map(([id,d])=>`<button class="choice ${id===selectedDiff?"selected":""}" data-diff="${id}"><strong>${d.label}</strong><span>${d.desc}</span></button>`).join("");
@@ -153,7 +135,7 @@ function newPlayer(name, ai=false) {
 
 async function startGame() {
   /* 본게임 화면을 먼저 시작하고 카드 이미지는 뒤에서 불러온다. */
-  if (!window.CNationMini?.enabled) preloadCardImages();
+  preloadCardImages();
   uid = 1;
   selectedTreasures.clear();
   const mode = modes[selectedMode];
@@ -193,14 +175,40 @@ function render() {
   $("playerStats").innerHTML = statsHtml(p);
   $("cpuStats").innerHTML = statsHtml(cpu);
   selectedTreasures = new Set([...selectedTreasures].filter(u=>p.hand.some(c=>c.uid===u)));
-  const mini = window.CNationMini?.enabled;
-  $("playerHand").innerHTML = p.hand.map((c,i)=>mini ? window.CNationMini.handHtml(c,i,state.current===0) : handHtml(c,i,state.current===0)).join("");
-  $("cpuHand").innerHTML = cpu.hand.map(()=>mini ? window.CNationMini.cardBackHtml() : `<div class="mini-card back">?</div>`).join("");
-  $("supplyGrid").innerHTML = Object.keys(state.supply).map(id=>mini ? window.CNationMini.supplyHtml(id) : supplyHtml(id)).join("");
+  $("playerHand").innerHTML = p.hand.map((c,i)=>handHtml(c,i,state.current===0)).join("");
+  $("cpuHand").innerHTML = cpu.hand.map(()=>`<div class="mini-card back">?</div>`).join("");
+  $("supplyGrid").innerHTML = Object.keys(state.supply).map(id=>supplyHtml(id)).join("");
+  requestAnimationFrame(fitSupplyCards);
   $("buyPhaseBtn").disabled = state.current !== 0 || state.phase !== "action" || awaiting;
   $("endTurnBtn").disabled = state.current !== 0 || awaiting;
   document.querySelectorAll("[data-hand]").forEach(el=>el.onclick=()=>onHand(+el.dataset.hand));
   document.querySelectorAll("[data-buy]").forEach(el=>el.onclick=()=>onSupply(el.dataset.buy));
+}
+function fitSupplyCards() {
+  const center = document.querySelector(".center");
+  const supply = document.querySelector(".supply");
+  const grid = $("supplyGrid");
+  const playerHand = $("playerHand");
+  if (!center || !supply || !grid) return;
+  const styles = getComputedStyle(grid);
+  const gridGap = parseFloat(styles.columnGap) || 0;
+  const centerGap = parseFloat(getComputedStyle(center).columnGap) || 0;
+  const supplyTitle = supply.querySelector(".supply-title");
+  const supplyStyles = getComputedStyle(supply);
+  const supplyGap = parseFloat(supplyStyles.rowGap) || 0;
+  const cols = 9;
+  const rows = 2;
+  const ratio = 31 / 48;
+  const statusMinWidth = 320;
+  const maxGridWidth = center.clientWidth - statusMinWidth - centerGap;
+  const maxGridHeight = center.clientHeight - (supplyTitle?.offsetHeight || 0) - supplyGap;
+  const maxW = (maxGridWidth - gridGap * (cols - 1)) / cols;
+  const maxH = (maxGridHeight - gridGap * (rows - 1)) / rows;
+  const width = Math.max(132, Math.floor(Math.min(maxW, maxH * ratio, 160)));
+  const height = Math.floor(width / ratio);
+  document.documentElement.style.setProperty("--pc-card-w", `${width}px`);
+  document.documentElement.style.setProperty("--pc-card-h", `${height}px`);
+  if (playerHand) playerHand.style.height = `${height + 8}px`;
 }
 function helpText() {
   return state.phase === "action"
@@ -462,10 +470,7 @@ function openModal(title, items, min, max, resolve, cancelResolve=null, okText="
   awaiting = true;
   const selected = new Set();
   $("modalTitle").textContent = title;
-  $("modalCards").innerHTML = items.map(x=>window.CNationMini?.enabled
-    ? window.CNationMini.modalCardHtml(x)
-    : `<button class="supply-card" data-pick="${x.uid}"><img src="${IMG+cards[x.id].img}" alt="${cards[x.id].name}"><span class="badge">${cards[x.id].cost}</span><span class="name">${cards[x.id].name}</span></button>`
-  ).join("");
+  $("modalCards").innerHTML = items.map(x=>`<button class="supply-card" data-pick="${x.uid}"><img src="${IMG+cards[x.id].img}" alt="${cards[x.id].name}"></button>`).join("");
   $("modalOk").textContent = okText; $("modalCancel").textContent = cancelText;
   $("modal").classList.add("active");
   document.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>{
@@ -495,28 +500,19 @@ $("startBtn").onclick = async () => {
     button.disabled = false;
   }
 };
-$("miniStartBtn").onclick = async () => {
-  sound("confirm");
-  const button = $("miniStartBtn");
-  const originalText = button.textContent;
-  $("startBtn").disabled = true;
-  button.disabled = true;
-  button.textContent = "불러오는 중...";
-  try {
-    const mini = await loadMiniScript();
-    if (!mini) throw new Error("mini.js 초기화에 실패했습니다.");
-    mini.enable();
-    await startGame();
-  } catch (error) {
-    sound("warning");
-    alert(error.message + "\nindex.html과 같은 위치에 mini.js가 있는지 확인하세요.");
-  } finally {
-    button.textContent = originalText;
-    button.disabled = false;
-    $("startBtn").disabled = false;
-  }
-};
+const titleExitBtn = $("titleExitBtn");
+if (titleExitBtn) {
+  titleExitBtn.onclick = () => {
+    sound("click");
+    if (!window.confirm("PC 게임 페이지를 종료할까요?")) return;
+    window.close();
+    if (!window.closed) {
+      alert("브라우저 보안상 이 탭을 자동으로 닫을 수 없습니다. 탭을 직접 닫아 주세요.");
+    }
+  };
+}
 $("buyPhaseBtn").onclick = () => { sound("click"); beginBuyPhase(); };
 $("endTurnBtn").onclick = () => { sound("confirm"); endTurn(); };
 $("restartBtn").onclick = () => { sound("click"); location.reload(); };
+window.addEventListener("resize", fitSupplyCards);
 initChoices();

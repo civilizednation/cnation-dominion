@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cnation DOMINION (도미니언) PC</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #160f0b; color: #fff6df; font-family: system-ui, "Malgun Gothic", sans-serif; }
+    button { font: inherit; color: inherit; border: 0; cursor: pointer; }
+    .app { width: 100vw; height: 100vh; min-width: 1180px; background: radial-gradient(circle at 12% 8%, #3f2c1f 0, transparent 28%), #21150f; position: relative; overflow: hidden; }
+    .screen { position: absolute; inset: 0; display: none; }
+    .screen.active { display: grid; }
+
+    .title { place-items: center; padding: 34px; overflow: auto; }
+    .title-wrap { width: min(1180px, 96vw); display: grid; grid-template-columns: minmax(360px, .86fr) minmax(620px, 1.14fr); gap: 22px; align-items: stretch; }
+    .title-hero { padding: 28px; border: 1px solid #80633f; border-radius: 14px; background: linear-gradient(145deg, #3b281b, #2a1c14); box-shadow: 0 14px 34px #0008; }
+    .title h1 { margin: 0; color: #fff4d2; font-family: Georgia, "Times New Roman", "Malgun Gothic", serif; font-size: 48px; line-height: 1.04; }
+    .title-version { margin-left: .35em; font-family: system-ui, "Malgun Gothic", sans-serif; font-size: .5em; font-weight: 400; white-space: nowrap; }
+    .title p { margin: 12px 0 0; color: #dfcda9; font-size: 17px; line-height: 1.55; }
+    .title-note { margin-top: 22px; padding: 14px 16px; border-left: 4px solid #d7a93f; border-radius: 6px 10px 10px 6px; background: #4b3321; color: #ead7b8; line-height: 1.55; }
+    .title-options { display: grid; gap: 12px; }
+    .panel { background: #352317; border: 1px solid #6f563b; border-radius: 10px; padding: 13px; box-shadow: 0 8px 18px #0005; }
+    .panel > strong { display: block; margin-bottom: 10px; color: #fff0c8; font-size: 16px; }
+    .deck-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+    .option-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .choice { min-height: 54px; padding: 9px 10px; border-radius: 8px; background: #4a3322; border: 2px solid transparent; text-align: left; overflow: hidden; }
+    .choice strong { display: block; color: #fff8df; font-size: 15px; line-height: 1.15; }
+    .choice span { display: block; color: #d7c09a; font-size: 12px; line-height: 1.25; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .choice.selected { border-color: #f4cf6d; background: #5f4027; }
+    .start-actions { display: flex; justify-content: end; gap: 10px; }
+    .start { min-width: 190px; height: 52px; border-radius: 9px; background: #d7a93f; color: #2b1a0e; font-weight: 900; font-size: 18px; box-shadow: 0 6px 18px #0005; }
+    .exit-start { min-width: 140px; background: #74412f; color: #fff7df; border: 1px solid #c98e65; }
+
+    .game { grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; overflow: hidden; }
+    .opponent, .player { background: #1b120d; border-color: #4f3827; }
+    .opponent { padding: 7px 16px 9px; border-bottom: 1px solid #4f3827; }
+    .player { padding: 7px 16px 10px; border-top: 1px solid #4f3827; background: #21150f; }
+    .bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 30px; color: #e9d8b8; }
+    .section-label { display: inline-grid; place-items: center; min-width: 92px; height: 30px; padding: 0 14px; border-radius: 6px; background: #2f6f68; color: #fff8d9; border: 1px solid #e1bd64; box-shadow: inset 0 1px 0 #ffffff24, 0 2px 8px #0007; font-size: 18px; font-weight: 900; white-space: nowrap; }
+    .stats { display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
+    .pill { padding: 4px 9px; border-radius: 999px; background: #3a281c; border: 1px solid #6a5035; color: #f0dfc2; font-size: 13px; white-space: nowrap; }
+    .hand { display: flex; gap: 8px; overflow-x: auto; align-items: stretch; }
+    .opponent .hand { height: 60px; padding-top: 6px; }
+    .player .hand { height: 232px; padding-top: 6px; }
+    .mini-card { flex: 0 0 auto; width: var(--pc-card-w, 144px); height: var(--pc-card-h, 223px); border-radius: 7px; background: #5b4228; border: 1px solid #8a704f; overflow: hidden; position: relative; box-shadow: 0 4px 14px #0007; }
+    .mini-card img,
+    .supply-card img { width: 100%; height: 100%; object-fit: cover; display: block; image-rendering: auto; -ms-interpolation-mode: bicubic; transform: translateZ(0); backface-visibility: hidden; }
+    .mini-card.back { width: 38px; height: 100%; display: grid; place-items: center; background: linear-gradient(135deg, #342115, #7a4b2b); color: #f9ddb2; font-size: 18px; font-weight: 900; }
+    .mini-card.disabled { cursor: default; }
+    .mini-card.selected { border-color: #f4cf6d; box-shadow: 0 0 0 3px #f4cf6d, 0 8px 22px #0009; transform: translateY(-5px); }
+
+    .center { min-height: 0; display: grid; grid-template-columns: max-content 320px; gap: 14px; padding: 9px 30px 8px 8px; overflow: hidden; align-items: stretch; }
+    .supply { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 8px; }
+    .supply-title { display: flex; justify-content: space-between; align-items: center; min-height: 34px; color: #d9c29d; }
+    .supply-grid { min-height: 0; overflow: hidden; display: grid; grid-template-columns: repeat(9, var(--pc-card-w, 144px)); grid-template-rows: repeat(2, var(--pc-card-h, 223px)); gap: 4px; place-items: start; align-content: start; justify-content: start; padding: 1px 0 2px; }
+    .supply-card { position: relative; width: var(--pc-card-w, 144px); height: var(--pc-card-h, 223px); min-height: 0; aspect-ratio: 31 / 48; border-radius: 7px; overflow: hidden; background: #3a291e; border: 1px solid #775d3f; box-shadow: 0 5px 14px #0007; }
+    .supply-card.selected { outline: 3px solid #f4cf6d; outline-offset: -3px; }
+    .supply-card.empty img { opacity: .25; filter: grayscale(1); }
+    .count { position: absolute; right: 5px; top: 5px; min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 999px; background: #21150fcc; color: #fff4d5; font-size: 14px; font-weight: 900; border: 1px solid #b18b55; }
+
+    .status { width: 320px; min-height: 0; display: grid; grid-template-rows: minmax(186px, 1fr) 52px; gap: 9px; align-self: end; transform: translate(-38px, 16px); }
+    .message { min-height: 0; background: linear-gradient(145deg, #342318, #281b13); border: 1px solid #80613c; border-radius: 8px; padding: 14px 13px; font-size: 15px; line-height: 1.44; overflow: auto; color: #ead7b8; box-shadow: inset 0 1px 0 #ffffff12, 0 4px 12px #0005; }
+    .message .guide { color: #fff0c2; font-weight: 800; margin-bottom: 6px; }
+    .message .feed { color: #d8c3a1; font-size: .96em; }
+    .message .feed .recent { color: #fff6d4; font-weight: 900; }
+    .actions { min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .action-btn { min-width: 0; border-radius: 8px; background: #684426; font-weight: 900; font-size: 15px; box-shadow: inset 0 1px 0 #ffffff14, 0 4px 10px #0006; }
+    .action-btn.primary { background: #d7a93f; color: #26170c; }
+
+    .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: #0009; z-index: 10; }
+    .modal.active { display: flex; }
+    .modal-box { width: min(980px, calc(100vw - 80px)); max-height: min(820px, calc(100vh - 80px)); background: #2a1b12; border: 2px solid #d2a24a; border-radius: 16px; padding: 18px; overflow: auto; box-shadow: 0 22px 60px #000b; }
+    .modal h2 { margin: 0 0 12px; font-size: 22px; }
+    .modal .cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    .modal .modal-actions { display: flex; gap: 10px; margin-top: 14px; }
+    .modal .modal-actions button { flex: 1; height: 50px; border-radius: 8px; background: #674224; font-weight: 900; }
+    .modal .modal-actions .ok { background: #d7a93f; color: #25180f; }
+    .modal .cards .supply-card { min-height: 208px; }
+    .modal .cards .supply-card .badge,
+    .modal .cards .supply-card .name { display: none; }
+
+    .end { position: fixed; inset: 0; display: none; place-items: center; padding: 30px; background: #000c; z-index: 20; }
+    .end.active { display: grid; }
+    .end-card { width: min(560px, 100%); background: #2e1f16; border: 2px solid #d7a93f; border-radius: 12px; padding: 22px; text-align: center; box-shadow: 0 20px 50px #000a; }
+    .end-card h2 { margin: 0 0 10px; font-size: 34px; }
+
+    @media (max-height: 900px) {
+      .player .hand { height: calc(var(--pc-card-h, 210px) + 8px); }
+      .status { grid-template-rows: minmax(168px, 1fr) 48px; transform: translate(-38px, 14px); }
+      .message { font-size: 14px; line-height: 1.34; padding: 10px 12px; }
+      .action-btn { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section id="titleScreen" class="screen title active">
+      <div class="title-wrap">
+        <div class="title-hero">
+          <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.0.0 PC</span></h1>
+          <p>컴퓨터와 노트북의 가로 와이드 화면에 맞춘 PC 전용 본게임입니다.</p>
+          <div class="title-note">마우스로 카드를 클릭해 진행합니다. 액션 단계에서 액션 카드를 사용하고, 구매 단계에서 재화 카드를 선택한 뒤 공급처 카드를 구매하세요.</div>
+        </div>
+        <div class="title-options">
+          <div class="panel">
+            <strong>왕국 카드 조합</strong>
+            <div id="deckChoices" class="deck-grid"></div>
+          </div>
+          <div class="panel">
+            <strong>컴퓨터 난이도</strong>
+            <div id="difficultyChoices" class="option-grid"></div>
+          </div>
+          <div class="panel">
+            <strong>승패 조건</strong>
+            <div id="modeChoices" class="option-grid"></div>
+          </div>
+          <div class="start-actions">
+            <button id="startBtn" class="start">PC 게임 시작</button>
+            <button id="titleExitBtn" class="start exit-start">게임 종료</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game">
+      <div class="opponent">
+        <div class="bar">
+          <strong class="section-label">컴퓨터</strong>
+          <div id="cpuStats" class="stats"></div>
+        </div>
+        <div id="cpuHand" class="hand"></div>
+      </div>
+      <div class="center">
+        <div class="supply">
+          <div class="supply-title">
+            <strong class="section-label">공급처</strong>
+          </div>
+          <div id="supplyGrid" class="supply-grid"></div>
+        </div>
+        <div class="status">
+          <div id="message" class="message"></div>
+          <div class="actions">
+            <button id="buyPhaseBtn" class="action-btn">구매 단계</button>
+            <button id="endTurnBtn" class="action-btn primary">턴 종료</button>
+          </div>
+        </div>
+      </div>
+      <div class="player">
+        <div class="bar">
+          <strong class="section-label">내 덱</strong>
+          <div id="playerStats" class="stats"></div>
+        </div>
+        <div id="playerHand" class="hand"></div>
+      </div>
+    </section>
+
+    <div id="modal" class="modal">
+      <div class="modal-box">
+        <h2 id="modalTitle"></h2>
+        <div id="modalCards" class="cards"></div>
+        <div class="modal-actions">
+          <button id="modalCancel">취소</button>
+          <button id="modalOk" class="ok">확인</button>
+        </div>
+      </div>
+    </div>
+    <div id="endScreen" class="end">
+      <div class="end-card">
+        <h2 id="endTitle"></h2>
+        <p id="endText"></p>
+        <button id="restartBtn" class="start">타이틀로</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="./game_pc.js"></script>
+  <script src="./deck-intro_pc.js"></script>
+  <script src="./rules-guide_pc.js"></script>
+  <script src="./game-controls_pc.js"></script>
+</body>
+</html>
