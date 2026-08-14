@@ -137,9 +137,9 @@
       .app.mini-mode .game .center { flex: 1 0 auto; min-height: 0; padding: 6px; }
       .app.mini-mode .opponent { height: auto; min-height: 80px; padding: 5px 7px; }
       .app.mini-mode .player { min-height: 0; padding: 5px 7px max(7px, env(safe-area-inset-bottom)); }
-      .app.mini-mode .bar { height: 30px; gap: 5px; }
+      .app.mini-mode .bar { height: 30px; gap: 5px; justify-content: flex-start; overflow: hidden; }
       .app.mini-mode .section-label { min-width: 60px; height: 25px; padding: 0 8px; font-size: 14px; }
-      .app.mini-mode .stats { gap: 4px; }
+      .app.mini-mode .stats { gap: 4px; flex: 1 1 auto; }
       .app.mini-mode .pill { padding: 2px 5px; font-size: 10px; }
       .app.mini-mode .supply { flex: 0 0 auto; min-height: 0; display: block; }
       .app.mini-mode .supply-title { min-height: 28px; margin-bottom: 5px; }
@@ -158,10 +158,11 @@
         overflow: visible;
         padding-bottom: 2px;
       }
-      .app.mini-mode .status { min-height: 78px; margin-top: 6px; grid-template-columns: minmax(0, 1fr) 82px; gap: 5px; }
+      .app.mini-mode .status { min-height: 78px; margin-top: 6px; grid-template-columns: minmax(0, 1fr); gap: 5px; }
       .app.mini-mode .message { padding: 6px 7px; font-size: 10.5px; }
-      .app.mini-mode .actions { gap: 5px; }
-      .app.mini-mode .action-btn { min-width: 0; font-size: 11px; }
+      .app.mini-mode .actions { gap: 3px; height: 25px; flex: 0 0 auto; }
+      .app.mini-mode .action-btn { min-width: 54px; padding: 0 5px; font-size: 9.5px; }
+      .app.mini-mode .action-btn.select-all { min-width: 86px; font-size: 8.5px; }
       .app.mini-mode .hand { height: auto; min-height: 44px; gap: 4px; align-items: stretch; }
       .app.mini-mode .player .hand {
         display: grid;
