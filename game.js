@@ -219,6 +219,7 @@ function render() {
   $("playerHand").innerHTML = p.hand.map((c,i)=>mini ? window.CNationMini.handHtml(c,i,state.current===0) : handHtml(c,i,state.current===0)).join("");
   $("cpuHand").innerHTML = cpu.hand.map(()=>mini ? window.CNationMini.cardBackHtml() : `<div class="mini-card back">?</div>`).join("");
   $("supplyGrid").innerHTML = Object.keys(state.supply).map(id=>mini ? window.CNationMini.supplyHtml(id) : supplyHtml(id)).join("");
+  $("selectAllBtn").disabled = state.current !== 0 || state.phase !== "buy" || awaiting || !p.hand.some(c=>cards[c.id].type==="treasure" && !selectedTreasures.has(c.uid));
   $("buyPhaseBtn").disabled = state.current !== 0 || state.phase !== "action" || awaiting;
   $("endTurnBtn").disabled = state.current !== 0 || awaiting;
   document.querySelectorAll("[data-hand]").forEach(el=>el.onclick=()=>onHand(+el.dataset.hand));
@@ -291,6 +292,19 @@ function toggleTreasure(p, c) {
     p.coins += coins;
     log(`${p.name}: ${card(c).name} 선택 (+${coins} 재화)`);
   }
+}
+function selectAllTreasures() {
+  if (awaiting || !state || state.current !== 0) return;
+  const p = state.players[0];
+  if (state.phase !== "buy") return sound("block"), log("구매 단계에서 재화 카드를 전체선택할 수 있습니다."), render();
+  const targets = p.hand.filter(c=>cards[c.id].type === "treasure" && !selectedTreasures.has(c.uid));
+  if (!targets.length) return sound("block"), log("선택할 재화 카드가 없습니다."), render();
+  const coins = targets.reduce((sum,c)=>sum+(card(c).coins||0),0);
+  targets.forEach(c => selectedTreasures.add(c.uid));
+  p.coins += coins;
+  sound("card");
+  log(`${p.name}: 재화 카드 ${targets.length}장 전체선택 (+${coins} 재화)`);
+  render();
 }
 function discardSelectedTreasures(p) {
   if (!selectedTreasures.size) return;
@@ -591,6 +605,7 @@ $("miniStartBtn").onclick = async () => {
   }
 };
 $("buyPhaseBtn").onclick = () => { sound("click"); beginBuyPhase(); };
+$("selectAllBtn").onclick = selectAllTreasures;
 $("endTurnBtn").onclick = () => { sound("confirm"); endTurn(); };
 $("restartBtn").onclick = () => { sound("click"); location.reload(); };
 initChoices();

@@ -78,10 +78,11 @@
     .message .guide { color: #fff0c2; font-weight: 800; margin-bottom: 6px; }
     .message .feed { color: #d8c3a1; font-size: .96em; }
     .message .feed .recent { color: #fff6d4; font-weight: 900; }
-    .actions { min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .player .actions { flex: 0 0 230px; height: 30px; }
+    .actions { min-height: 0; display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 7px; }
+    .player .actions { flex: 0 0 380px; height: 30px; }
     .action-btn { min-width: 0; border-radius: 8px; background: #684426; font-weight: 900; font-size: 15px; box-shadow: inset 0 1px 0 #ffffff14, 0 4px 10px #0006; }
     .player .action-btn { border-radius: 6px; font-size: 13px; }
+    .action-btn.select-all { background: #4f5f35; color: #fff4d5; font-size: 12px; white-space: nowrap; }
     .action-btn.primary { background: #d7a93f; color: #26170c; }
 
     .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: #0009; z-index: 10; }
@@ -140,7 +141,7 @@
     <section id="titleScreen" class="screen title active">
       <div class="title-wrap">
         <div class="title-hero">
-          <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.4 PC</span></h1>
+          <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.6 PC</span></h1>
           <p>PC/노트북 버전</p>
         </div>
         <div class="title-options">
@@ -196,6 +197,7 @@
         <div class="bar">
           <strong class="section-label">내 덱</strong>
           <div class="actions">
+            <button id="selectAllBtn" class="action-btn select-all">재화카드 전체선택</button>
             <button id="buyPhaseBtn" class="action-btn">구매 단계</button>
             <button id="endTurnBtn" class="action-btn primary">턴 종료</button>
           </div>

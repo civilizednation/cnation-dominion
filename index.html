@@ -60,6 +60,7 @@
     .message .feed .recent { color: #fff6d4; font-weight: 900; }
     .actions { display: flex; flex-direction: column; gap: 6px; }
     .action-btn { min-width: 92px; flex: 1; border-radius: 8px; background: #684426; font-weight: 800; font-size: 13px; }
+    .action-btn.select-all { flex: .92; background: #4f5f35; color: #fff4d5; }
     .action-btn.primary { background: #d7a93f; color: #26170c; }
     .supply { flex: 1; min-height: 0; display: grid; grid-template-rows: auto 1fr; gap: 6px; }
     .supply-title { display: flex; justify-content: space-between; align-items: center; min-height: 34px; font-size: 12px; color: #d9c29d; }
@@ -139,6 +140,7 @@
       .status { min-height: 68px; grid-template-columns: 1fr 88px; }
       .message { font-size: 11.25px; }
       .action-btn { min-width: 0; font-size: 12px; }
+      .action-btn.select-all { font-size: 11px; }
       .section-label { min-width: 68px; height: 28px; padding: 0 10px; font-size: 16px; }
       .supply-grid { grid-template-columns: repeat(6, 1fr); }
       .supply-card { min-height: clamp(112px, 16vh, 136px); }
@@ -189,7 +191,7 @@
   <main class="app">
     <section id="titleScreen" class="screen title active">
       <div>
-        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.4</span></h1>
+        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.6</span></h1>
         <p>컴퓨터와 즐기는 1:1 도미니언 웹게임</p>
       </div>
       <div class="panel">
@@ -231,6 +233,7 @@
         <div class="status">
           <div id="message" class="message"></div>
           <div class="actions">
+            <button id="selectAllBtn" class="action-btn select-all">재화카드 전체선택</button>
             <button id="buyPhaseBtn" class="action-btn">구매 단계</button>
             <button id="endTurnBtn" class="action-btn primary">턴 종료</button>
           </div>
