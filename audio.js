@@ -27,7 +27,6 @@
   const DEFAULT_SFX_VOLUME = 1;
   const BGM_FADE_SECONDS = 2.5;
   const BGM_SWITCH_SECONDS = 1.4;
-  const TITLE_INTRO_SECONDS = 20;
   const MAX_SAME_SFX_VOICES = 5;
   const MIN_SFX_INTERVAL_MS = 20;
 
@@ -134,7 +133,7 @@
   }
 
   function nextTrackStartTime(index) {
-    return currentMode === "title" && currentPlaylist[index] === "title.mp3" ? Math.max(0, TITLE_INTRO_SECONDS - BGM_FADE_SECONDS) : 0;
+    return 0;
   }
 
   function getAudioContext() {
@@ -363,8 +362,8 @@
   };
 
   function playTitle() {
-    preloadBgmFiles(["title0.mp3", "title.mp3", "result.mp3"]);
-    return setPlaylist("title", ["title0.mp3", "title.mp3"], false);
+    preloadBgmFiles(["title.mp3", "result.mp3"]);
+    return setPlaylist("title", ["title.mp3"], false);
   }
 
   function playKingdom(presetIndex = 0, restartFromFirst = false) {
@@ -488,7 +487,7 @@
     initialized = true;
     getAudioContext();
     loadSfx();
-    preloadBgmFiles(["title0.mp3", "title.mp3", "result.mp3"]);
+    preloadBgmFiles(["title.mp3", "result.mp3"]);
     bindUnlockEvents();
     if (document.getElementById("titleScreen")?.classList.contains("active")) {
       playTitle();
