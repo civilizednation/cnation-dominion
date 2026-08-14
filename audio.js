@@ -76,20 +76,61 @@
   const buffers = {};
   const voices = {};
   const lastSfxAt = {};
+  const bgmPreloads = new Map();
 
   const players = [new Audio(), new Audio()];
-  players.forEach(player => {
+  players.forEach((player, index) => {
     player.preload = "auto";
     player.crossOrigin = "anonymous";
     player.loop = false;
     player.addEventListener("ended", () => {
-      if (currentMode !== "result") playNextTrack();
+      if (currentMode !== "result" && index === activePlayer) playNextTrack(false);
     });
     player.addEventListener("error", () => {
       if (player.src) console.warn("BGM 로딩 실패:", player.src);
-      if (currentMode !== "result") playNextTrack();
+      if (currentMode !== "result" && index === activePlayer) playNextTrack(false);
     });
   });
+
+  function bgmUrl(file) {
+    return new URL(BGM_BASE + file, location.href).href;
+  }
+
+  function preloadBgmFiles(files = []) {
+    files.filter(Boolean).forEach(file => {
+      const url = bgmUrl(file);
+      if (bgmPreloads.has(url)) return;
+      const audio = new Audio();
+      audio.preload = "auto";
+      audio.crossOrigin = "anonymous";
+      audio.loop = false;
+      audio.src = url;
+      bgmPreloads.set(url, audio);
+      try { audio.load(); } catch {}
+    });
+  }
+
+  function prepareNextTrack() {
+    if (!currentPlaylist.length || currentMode === "result") return;
+    const nextIndex = nextPlaylistIndex();
+    const nextPlayer = players[1 - activePlayer];
+    const url = bgmUrl(currentPlaylist[nextIndex]);
+    if (nextPlayer.src !== url) {
+      nextPlayer.pause();
+      nextPlayer.src = url;
+      nextPlayer.loop = false;
+      nextPlayer.currentTime = 0;
+      nextPlayer.volume = 0;
+      try { nextPlayer.load(); } catch {}
+    }
+    preloadBgmFiles([currentPlaylist[nextIndex], "result.mp3"]);
+  }
+
+  function nextPlaylistIndex() {
+    if (!currentPlaylist.length) return 0;
+    if (currentMode === "title" && currentPlaylist.length > 1 && currentIndex >= 1) return 1;
+    return (currentIndex + 1) % currentPlaylist.length;
+  }
 
   function getAudioContext() {
     if (audioCtx) return audioCtx;
@@ -147,7 +188,8 @@
       return;
     }
     const remain = Math.max(0.4, duration - player.currentTime - BGM_FADE_SECONDS);
-    switchTimer = setTimeout(playNextTrack, remain * 1000);
+    prepareNextTrack();
+    switchTimer = setTimeout(() => playNextTrack(true), remain * 1000);
   }
 
   async function startTrack(index, fadeIn = true) {
@@ -156,42 +198,46 @@
     currentIndex = index % currentPlaylist.length;
     const player = players[activePlayer];
     player.loop = false;
-    player.src = BGM_BASE + currentPlaylist[currentIndex];
+    player.src = bgmUrl(currentPlaylist[currentIndex]);
     player.currentTime = 0;
     player.volume = fadeIn ? 0 : targetBgmVolume();
     const played = await safePlay(player);
     if (played) {
       if (fadeIn) fade(player, 0, targetBgmVolume(), BGM_SWITCH_SECONDS);
+      prepareNextTrack();
       scheduleCrossfade();
     }
   }
 
-  async function playNextTrack() {
+  async function playNextTrack(crossfade = true) {
     if (!currentPlaylist.length || currentMode === "result") return;
     const oldPlayer = players[activePlayer];
     const nextPlayerIndex = 1 - activePlayer;
     const nextPlayer = players[nextPlayerIndex];
-    const nextIndex = (currentIndex + 1) % currentPlaylist.length;
+    const nextIndex = nextPlaylistIndex();
     clearTimeout(switchTimer);
-    nextPlayer.src = BGM_BASE + currentPlaylist[nextIndex];
+    const url = bgmUrl(currentPlaylist[nextIndex]);
+    if (nextPlayer.src !== url) nextPlayer.src = url;
     nextPlayer.loop = false;
     nextPlayer.currentTime = 0;
-    nextPlayer.volume = 0;
+    nextPlayer.volume = crossfade ? 0 : targetBgmVolume();
     const played = await safePlay(nextPlayer);
     if (!played) return;
-    fade(oldPlayer, oldPlayer.volume, 0, BGM_FADE_SECONDS, () => {
+    fade(oldPlayer, oldPlayer.volume, 0, crossfade ? BGM_FADE_SECONDS : 0.08, () => {
       oldPlayer.pause();
       oldPlayer.currentTime = 0;
     });
-    fade(nextPlayer, 0, targetBgmVolume(), BGM_FADE_SECONDS);
+    if (crossfade) fade(nextPlayer, 0, targetBgmVolume(), BGM_FADE_SECONDS);
     activePlayer = nextPlayerIndex;
     currentIndex = nextIndex;
+    prepareNextTrack();
     scheduleCrossfade();
   }
 
   async function setPlaylist(mode, files, restartFromFirst = false) {
     const list = files.filter(Boolean);
     if (!list.length) return;
+    preloadBgmFiles([...list, "result.mp3"]);
     const same = currentMode === mode && currentPlaylist.join("|") === list.join("|");
     currentMode = mode;
     currentPlaylist = list;
@@ -206,7 +252,7 @@
     currentIndex = 0;
     const nextPlayer = players[activePlayer];
     cancelTimers();
-    nextPlayer.src = BGM_BASE + currentPlaylist[0];
+    nextPlayer.src = bgmUrl(currentPlaylist[0]);
     nextPlayer.loop = false;
     nextPlayer.currentTime = 0;
     nextPlayer.volume = 0;
@@ -217,6 +263,7 @@
       oldPlayer.currentTime = 0;
     });
     fade(nextPlayer, 0, targetBgmVolume(), BGM_SWITCH_SECONDS);
+    prepareNextTrack();
     scheduleCrossfade();
   }
 
@@ -301,14 +348,17 @@
   };
 
   function playTitle() {
-    return setPlaylist("title", ["title.mp3"], false);
+    preloadBgmFiles(["title0.mp3", "title.mp3", "result.mp3"]);
+    return setPlaylist("title", ["title0.mp3", "title.mp3"], false);
   }
 
   function playKingdom(presetIndex = 0, restartFromFirst = false) {
+    preloadBgmFiles([...(KINGDOM_BGM[presetIndex] || KINGDOM_BGM[0]), "result.mp3"]);
     return setPlaylist(`kingdom-${presetIndex}`, KINGDOM_BGM[presetIndex] || KINGDOM_BGM[0], restartFromFirst);
   }
 
   function playGuide() {
+    preloadBgmFiles(["guide.mp3", "result.mp3"]);
     return setPlaylist("guide", ["guide.mp3"], false);
   }
 
@@ -324,7 +374,7 @@
     });
     if (!unlocked || bgmMuted || !visible) return;
     const player = players[activePlayer];
-    player.src = BGM_BASE + "result.mp3";
+    player.src = bgmUrl("result.mp3");
     player.loop = false;
     player.currentTime = 0;
     player.volume = targetBgmVolume();
@@ -422,6 +472,7 @@
     initialized = true;
     getAudioContext();
     loadSfx();
+    preloadBgmFiles(["title0.mp3", "title.mp3", "result.mp3"]);
     bindUnlockEvents();
     if (document.getElementById("titleScreen")?.classList.contains("active")) {
       playTitle();
