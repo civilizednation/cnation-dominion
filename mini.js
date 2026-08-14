@@ -160,8 +160,8 @@
       }
       .app.mini-mode .status { min-height: 78px; margin-top: 6px; grid-template-columns: minmax(0, 1fr) 82px; gap: 5px; }
       .app.mini-mode .message { padding: 6px 7px; font-size: 10.5px; }
-      .app.mini-mode .actions { flex-direction: column; gap: 5px; height: auto; min-height: 0; }
-      .app.mini-mode .action-btn { min-width: 54px; padding: 0 5px; font-size: 9.5px; }
+      .app.mini-mode .actions { flex-direction: column; gap: 5px; height: 100%; min-height: 0; align-self: stretch; }
+      .app.mini-mode .action-btn { min-width: 54px; min-height: 0; flex: 1 1 0; padding: 0 5px; font-size: 9.5px; }
       .app.mini-mode .action-btn.select-all { min-width: 86px; font-size: 8.5px; }
       .app.mini-mode .hand { height: auto; min-height: 44px; gap: 4px; align-items: stretch; }
       .app.mini-mode .player .hand {
