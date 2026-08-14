@@ -180,6 +180,7 @@
 
   function show() {
     if (typeof sound === "function") sound("click");
+    window.CNationAudio?.playKingdom?.(selectedPreset, true);
     const title = document.getElementById("titleScreen");
     titleScroll = title.scrollTop;
     render();
@@ -191,6 +192,7 @@
 
   function hide() {
     if (typeof sound === "function") sound("click");
+    window.CNationAudio?.playTitle?.();
     document.getElementById("deckIntroScreen").classList.remove("active");
     const title = document.getElementById("titleScreen");
     title.classList.add("active");

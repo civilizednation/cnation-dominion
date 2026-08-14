@@ -19,7 +19,7 @@
     .title-version { margin-left: .45em; font-family: "Segoe UI", "Malgun Gothic", sans-serif; font-size: .44em; font-weight: 400; white-space: nowrap; color: #f2dfb8; }
     .title p { margin: 4px 0 0; color: #dfcda9; font-size: 15px; line-height: 1.2; }
     .title-options { min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 8px; }
-    .title-bottom { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .title-bottom { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
     .panel { background: #352317; border: 1px solid #6f563b; border-radius: 8px; padding: 8px 12px; box-shadow: 0 6px 14px #0005; }
     .panel > strong { display: block; margin-bottom: 6px; color: #fff0c8; font-size: 16px; }
     .deck-panel { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
@@ -29,6 +29,12 @@
     .choice strong { display: block; color: #fff8df; font-size: 15px; line-height: 1.12; }
     .choice span { display: block; color: #d7c09a; font-size: 12px; line-height: 1.2; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .choice.selected { border-color: #f4cf6d; background: #5f4027; }
+    .sound-panel { display: grid; grid-template-rows: auto 1fr; }
+    .sound-options { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 7px 8px; align-content: center; }
+    .sound-options b { color: #fff0c8; font-size: 14px; white-space: nowrap; }
+    .sound-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
+    .sound-choice { height: 32px; border-radius: 7px; background: #4a3322; border: 1px solid #6f563b; color: #ead7b8; font-size: 12px; font-weight: 800; }
+    .sound-choice.selected { border-color: #f4cf6d; background: #5f4027; color: #fff8df; }
     .deck-grid .choice { min-height: 0; height: 33px; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 9px; align-items: center; padding: 4px 10px; border-radius: 7px; }
     .deck-grid .choice strong { font-size: 15px; }
     .deck-grid .choice span { margin-top: 0; font-size: 12.5px; }
@@ -134,7 +140,7 @@
     <section id="titleScreen" class="screen title active">
       <div class="title-wrap">
         <div class="title-hero">
-          <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.0.1 PC</span></h1>
+          <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.0 PC</span></h1>
           <p>PC/노트북 버전</p>
         </div>
         <div class="title-options">
@@ -150,6 +156,10 @@
             <div class="panel">
               <strong>승패 조건</strong>
               <div id="modeChoices" class="option-grid"></div>
+            </div>
+            <div class="panel sound-panel">
+              <strong>사운드 설정</strong>
+              <div id="soundChoices" class="sound-options"></div>
             </div>
             <div class="panel start-panel">
               <strong>게임 메뉴</strong>
@@ -214,6 +224,7 @@
     </div>
   </main>
 
+  <script src="./audio.js"></script>
   <script src="./game_pc.js"></script>
   <script src="./deck-intro_pc.js"></script>
   <script src="./rules-guide_pc.js"></script>

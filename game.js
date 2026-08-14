@@ -70,6 +70,7 @@ const allCards = p => [...p.deck,...p.hand,...p.discard,...p.play];
 const log = text => { state.log.unshift(text); state.log = state.log.slice(0, 30); };
 const hasMoat = p => p.hand.some(c=>c.id==="moat");
 function sound(kind="click") {
+  if (window.CNationAudio?.playSfx?.(kind)) return;
   try {
     audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
     const now = audioCtx.currentTime;
@@ -139,9 +140,29 @@ function initChoices() {
   $("deckChoices").innerHTML = presets.map((p,i)=>`<button class="choice ${i===selectedPreset?"selected":""}" data-deck="${i}"><strong>${i+1}. ${p.title}</strong><span>${p.desc} · ${p.ids.map(id=>cards[id].name).join(", ")}</span></button>`).join("");
   $("difficultyChoices").innerHTML = Object.entries(diffs).map(([id,d])=>`<button class="choice ${id===selectedDiff?"selected":""}" data-diff="${id}"><strong>${d.label}</strong><span>${d.desc}</span></button>`).join("");
   $("modeChoices").innerHTML = Object.entries(modes).map(([id,m])=>`<button class="choice ${id===selectedMode?"selected":""}" data-mode="${id}"><strong>${m.label}</strong><span>${m.desc}</span></button>`).join("");
+  renderSoundChoices();
   document.querySelectorAll("[data-deck]").forEach(b=>b.onclick=()=>{sound("click");selectedPreset=+b.dataset.deck;initChoices();});
   document.querySelectorAll("[data-diff]").forEach(b=>b.onclick=()=>{sound("click");selectedDiff=b.dataset.diff;initChoices();});
   document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{sound("click");selectedMode=b.dataset.mode;initChoices();});
+}
+
+function renderSoundChoices() {
+  const root = $("soundChoices");
+  if (!root) return;
+  const labels = {off:"끄기", small:"작게", normal:"보통", large:"크게"};
+  const settings = window.CNationAudio?.getSettings?.() || {bgmLevel:"normal", sfxLevel:"normal"};
+  const row = (kind, label, selected) => `<b>${label}</b><div class="sound-row">${Object.entries(labels).map(([id,text])=>`<button class="sound-choice ${selected===id?"selected":""}" data-sound-kind="${kind}" data-sound-level="${id}">${text}</button>`).join("")}</div>`;
+  root.innerHTML = row("bgm", "음악", settings.bgmLevel) + row("sfx", "효과음", settings.sfxLevel);
+  root.querySelectorAll("[data-sound-kind]").forEach(button => {
+    button.onclick = async () => {
+      sound("click");
+      await window.CNationAudio?.unlock?.();
+      const level = button.dataset.soundLevel;
+      if (button.dataset.soundKind === "bgm") window.CNationAudio?.setBgmLevel?.(level);
+      else window.CNationAudio?.setSfxLevel?.(level);
+      renderSoundChoices();
+    };
+  });
 }
 
 function newPlayer(name, ai=false) {
@@ -152,6 +173,7 @@ function newPlayer(name, ai=false) {
 }
 
 async function startGame() {
+  window.CNationAudio?.playKingdom?.(selectedPreset, true);
   /* 본게임 화면을 먼저 시작하고 카드 이미지는 뒤에서 불러온다. */
   if (!window.CNationMini?.enabled) preloadCardImages();
   uid = 1;
@@ -485,6 +507,7 @@ function checkEnd() {
 function endGame() {
   const ps = state.players, s0 = score(ps[0]), s1 = score(ps[1]);
   let title = s0 > s1 ? "승리!" : s0 < s1 ? "패배" : ps[0].turns <= ps[1].turns ? "동점 승리" : "동점 패배";
+  window.CNationAudio?.playResult?.();
   $("endTitle").textContent = title;
   $("endText").innerHTML = resultSummaryHtml(ps, s0, s1, title);
   $("restartBtn").textContent = "확인";
@@ -531,6 +554,7 @@ function openModal(title, items, min, max, resolve, cancelResolve=null, okText="
 
 $("startBtn").onclick = async () => {
   sound("confirm");
+  await window.CNationAudio?.unlock?.();
   const button = $("startBtn");
   button.disabled = true;
 
@@ -546,6 +570,7 @@ $("startBtn").onclick = async () => {
 };
 $("miniStartBtn").onclick = async () => {
   sound("confirm");
+  await window.CNationAudio?.unlock?.();
   const button = $("miniStartBtn");
   const originalText = button.textContent;
   $("startBtn").disabled = true;

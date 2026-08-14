@@ -173,6 +173,7 @@
 
   function show() {
     if (typeof sound === "function") sound("click");
+    window.CNationAudio?.playGuide?.();
     const title = document.getElementById("titleScreen");
     titleScroll = title.scrollTop;
     render();
@@ -184,6 +185,7 @@
 
   function hide() {
     if (typeof sound === "function") sound("click");
+    window.CNationAudio?.playTitle?.();
     document.getElementById("rulesGuideScreen").classList.remove("active");
     const title = document.getElementById("titleScreen");
     title.classList.add("active");
