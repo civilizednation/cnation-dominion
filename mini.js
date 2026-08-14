@@ -158,9 +158,9 @@
         overflow: visible;
         padding-bottom: 2px;
       }
-      .app.mini-mode .status { min-height: 78px; margin-top: 6px; grid-template-columns: minmax(0, 1fr); gap: 5px; }
+      .app.mini-mode .status { min-height: 78px; margin-top: 6px; grid-template-columns: minmax(0, 1fr) 82px; gap: 5px; }
       .app.mini-mode .message { padding: 6px 7px; font-size: 10.5px; }
-      .app.mini-mode .actions { gap: 3px; height: 25px; flex: 0 0 auto; }
+      .app.mini-mode .actions { flex-direction: column; gap: 5px; height: auto; min-height: 0; }
       .app.mini-mode .action-btn { min-width: 54px; padding: 0 5px; font-size: 9.5px; }
       .app.mini-mode .action-btn.select-all { min-width: 86px; font-size: 8.5px; }
       .app.mini-mode .hand { height: auto; min-height: 44px; gap: 4px; align-items: stretch; }
@@ -417,6 +417,12 @@
     document.head.appendChild(style);
   }
 
+  function arrangeMiniControls() {
+    const status = document.querySelector(".app.mini-mode .status");
+    const actions = document.querySelector(".app.mini-mode .player .actions");
+    if (status && actions && actions.parentElement !== status) status.appendChild(actions);
+  }
+
   window.CNationMini = {
     enabled: false,
 
@@ -425,6 +431,7 @@
       injectStyles();
       document.body.classList.add("mini-game-active");
       document.querySelector(".app")?.classList.add("mini-mode");
+      arrangeMiniControls();
       watchTopArea();
     },
 
