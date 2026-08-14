@@ -27,6 +27,7 @@
   const DEFAULT_SFX_VOLUME = 1;
   const BGM_FADE_SECONDS = 2.5;
   const BGM_SWITCH_SECONDS = 1.4;
+  const TITLE_INTRO_SECONDS = 20;
   const MAX_SAME_SFX_VOICES = 5;
   const MIN_SFX_INTERVAL_MS = 20;
 
@@ -119,7 +120,7 @@
       nextPlayer.pause();
       nextPlayer.src = url;
       nextPlayer.loop = false;
-      nextPlayer.currentTime = 0;
+      nextPlayer.currentTime = nextTrackStartTime(nextIndex);
       nextPlayer.volume = 0;
       try { nextPlayer.load(); } catch {}
     }
@@ -130,6 +131,10 @@
     if (!currentPlaylist.length) return 0;
     if (currentMode === "title" && currentPlaylist.length > 1 && currentIndex >= 1) return 1;
     return (currentIndex + 1) % currentPlaylist.length;
+  }
+
+  function nextTrackStartTime(index) {
+    return currentMode === "title" && currentPlaylist[index] === "title.mp3" ? Math.max(0, TITLE_INTRO_SECONDS - BGM_FADE_SECONDS) : 0;
   }
 
   function getAudioContext() {
@@ -178,6 +183,15 @@
     }
   }
 
+  async function tryAutoplayTitle() {
+    if (!document.getElementById("titleScreen")?.classList.contains("active")) return;
+    if (!currentPlaylist.length) playTitle();
+    if (bgmMuted || !visible) return;
+    unlocked = true;
+    await startTrack(currentIndex, true);
+    if (players[activePlayer].paused) unlocked = false;
+  }
+
   function scheduleCrossfade() {
     clearTimeout(switchTimer);
     const player = players[activePlayer];
@@ -199,7 +213,7 @@
     const player = players[activePlayer];
     player.loop = false;
     player.src = bgmUrl(currentPlaylist[currentIndex]);
-    player.currentTime = 0;
+    player.currentTime = nextTrackStartTime(currentIndex);
     player.volume = fadeIn ? 0 : targetBgmVolume();
     const played = await safePlay(player);
     if (played) {
@@ -207,6 +221,7 @@
       prepareNextTrack();
       scheduleCrossfade();
     }
+    return played;
   }
 
   async function playNextTrack(crossfade = true) {
@@ -219,7 +234,7 @@
     const url = bgmUrl(currentPlaylist[nextIndex]);
     if (nextPlayer.src !== url) nextPlayer.src = url;
     nextPlayer.loop = false;
-    nextPlayer.currentTime = 0;
+    nextPlayer.currentTime = nextTrackStartTime(nextIndex);
     nextPlayer.volume = crossfade ? 0 : targetBgmVolume();
     const played = await safePlay(nextPlayer);
     if (!played) return;
@@ -254,7 +269,7 @@
     cancelTimers();
     nextPlayer.src = bgmUrl(currentPlaylist[0]);
     nextPlayer.loop = false;
-    nextPlayer.currentTime = 0;
+    nextPlayer.currentTime = nextTrackStartTime(0);
     nextPlayer.volume = 0;
     const played = await safePlay(nextPlayer);
     if (!played) return;
@@ -465,6 +480,7 @@
     document.addEventListener("pointerdown", once, {once: true, passive: true});
     document.addEventListener("touchstart", once, {once: true, passive: true});
     document.addEventListener("click", once, {once: true});
+    document.addEventListener("keydown", once, {once: true});
   }
 
   function init() {
@@ -476,6 +492,8 @@
     bindUnlockEvents();
     if (document.getElementById("titleScreen")?.classList.contains("active")) {
       playTitle();
+      setTimeout(tryAutoplayTitle, 0);
+      window.addEventListener("load", tryAutoplayTitle, {once: true});
     }
     document.addEventListener("visibilitychange", () => {
       visible = !document.hidden;
