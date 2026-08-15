@@ -78,10 +78,14 @@
 
   let topAreaObserver = null;
 
-  function victoryConditionText() {
-    if (!state) return "";
+  function topAreaInfo() {
+    if (!state) return {condition: "", kingdom: ""};
     const mode = modes[state.mode];
-    return `${mode.label} · ${mode.desc}`;
+    const preset = presets[state.preset];
+    return {
+      condition: `${mode.label} · ${mode.desc}`,
+      kingdom: `왕국 조합 · ${preset?.title || ""}`
+    };
   }
 
   function addTopAreaControls() {
@@ -96,7 +100,8 @@
         <button type="button" class="mini-exit-button">게임 종료</button>
         <div class="mini-win-condition">
           <strong>승리 조건</strong>
-          <span></span>
+          <span class="mini-win-rule"></span>
+          <span class="mini-win-kingdom"></span>
         </div>
       `;
       tools.querySelector(".mini-exit-button").onclick = () => {
@@ -107,7 +112,9 @@
       cpuHand.appendChild(tools);
     }
 
-    tools.querySelector(".mini-win-condition span").textContent = victoryConditionText();
+    const info = topAreaInfo();
+    tools.querySelector(".mini-win-rule").textContent = info.condition;
+    tools.querySelector(".mini-win-kingdom").textContent = info.kingdom;
   }
 
   function watchTopArea() {
@@ -212,11 +219,11 @@
         text-align: center;
       }
       .app.mini-mode .mini-opponent-tools {
-        flex: 1 0 112px;
-        min-width: 112px;
-        height: 44px;
+        flex: 1 0 150px;
+        min-width: 150px;
+        height: 52px;
         display: grid;
-        grid-template-columns: minmax(48px, .7fr) minmax(62px, 1.3fr);
+        grid-template-columns: minmax(50px, .65fr) minmax(96px, 1.35fr);
         gap: 3px;
         margin-left: 3px;
       }
@@ -253,6 +260,11 @@
       .app.mini-mode .mini-win-condition strong {
         color: #f4cf6d;
         font-size: 8.5px;
+      }
+      .app.mini-mode .mini-win-condition .mini-win-kingdom {
+        margin-top: 2px;
+        color: #f0d58f;
+        font-weight: 800;
       }
       .app.mini-mode .supply-card.mini-supply,
       .app.mini-mode .modal .supply-card.mini-supply {

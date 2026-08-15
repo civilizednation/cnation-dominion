@@ -5,10 +5,15 @@
 
   function victoryCondition() {
     if (typeof state === "undefined" || !state) {
-      return {label: "", description: ""};
+      return {label: "", description: "", kingdom: ""};
     }
     const mode = modes[state.mode];
-    return {label: mode.label, description: mode.desc};
+    const preset = presets[state.preset];
+    return {
+      label: mode.label,
+      description: mode.desc,
+      kingdom: preset?.title || ""
+    };
   }
 
   function exitToTitle() {
@@ -26,6 +31,7 @@
         <strong>승리 조건</strong>
         <span class="pc-win-mode"></span>
         <small class="pc-win-description"></small>
+        <small class="pc-win-kingdom"></small>
       </div>
     `;
     tools.querySelector(".pc-exit-button").onclick = exitToTitle;
@@ -43,6 +49,7 @@
     const condition = victoryCondition();
     tools.querySelector(".pc-win-mode").textContent = condition.label;
     tools.querySelector(".pc-win-description").textContent = condition.description;
+    tools.querySelector(".pc-win-kingdom").textContent = `왕국 조합 · ${condition.kingdom}`;
   }
 
   function injectStyles() {
@@ -105,6 +112,16 @@
         font-size: 11px;
         line-height: 1.12;
         word-break: keep-all;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .pc-win-kingdom {
+        margin-top: 4px;
+        color: #f0d58f;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.12;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

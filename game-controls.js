@@ -12,14 +12,16 @@
 
   function victoryCondition() {
     if (typeof state === "undefined" || !state) {
-      return {label: "", description: ""};
+      return {label: "", description: "", kingdom: ""};
     }
 
     const mode = modes[state.mode];
+    const preset = presets[state.preset];
 
     return {
       label: mode.label,
-      description: mode.desc
+      description: mode.desc,
+      kingdom: preset?.title || ""
     };
   }
 
@@ -46,6 +48,7 @@
         <strong>승리 조건</strong>
         <span class="game-win-mode"></span>
         <small class="game-win-description"></small>
+        <small class="game-win-kingdom"></small>
       </div>
     `;
 
@@ -74,6 +77,7 @@
     const condition = victoryCondition();
     const modeElement = tools.querySelector(".game-win-mode");
     const descriptionElement = tools.querySelector(".game-win-description");
+    const kingdomElement = tools.querySelector(".game-win-kingdom");
 
     if (modeElement.textContent !== condition.label) {
       modeElement.textContent = condition.label;
@@ -81,6 +85,11 @@
 
     if (descriptionElement.textContent !== condition.description) {
       descriptionElement.textContent = condition.description;
+    }
+
+    const kingdomText = `왕국 조합 · ${condition.kingdom}`;
+    if (kingdomElement.textContent !== kingdomText) {
+      kingdomElement.textContent = kingdomText;
     }
   }
 
@@ -160,6 +169,17 @@
         word-break: keep-all;
       }
 
+      .app:not(.mini-mode) .game-win-kingdom {
+        margin-top: 4px;
+        color: #f0d58f;
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1.12;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
       @media (max-width: 560px) {
         .app:not(.mini-mode) .game-opponent-tools {
           flex-basis: 190px;
@@ -193,6 +213,12 @@
           margin-top: 2px;
           font-size: 7.5px;
           line-height: 1.12;
+        }
+
+        .app:not(.mini-mode) .game-win-kingdom {
+          margin-top: 3px;
+          font-size: 7.5px;
+          line-height: 1.08;
         }
       }
     `;
