@@ -108,7 +108,7 @@ body{
 }
 .crest-sub{
   display: block;
-  font-size: 9px;
+  font-size: 13.5px;
   letter-spacing: 0.22em;
   color: var(--ink-dim);
   text-shadow: none;
@@ -170,6 +170,24 @@ body{
   font-weight: 700;
   color: var(--ink);
   text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+/* 특히 고음질 origin/ 파일은 느린 네트워크에서 로딩이 꽤 걸릴 수 있어서,
+   버튼을 누르고 소리가 안 나올 때 사용자가 오작동으로 오해하지 않도록
+   재생 시작 전까지 안내 문구를 보여준다 (player.js에서 켜고 끔). */
+.loading-hint{
+  display: none;
+  font-size: 10.5px;
+  color: var(--accent);
+  letter-spacing: 0.03em;
+  animation: loading-pulse 1.1s ease-in-out infinite;
+}
+.loading-hint.visible{ display: block; }
+@keyframes loading-pulse{
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce){
+  .loading-hint{ animation: none; }
 }
 .eq{
   display: flex;

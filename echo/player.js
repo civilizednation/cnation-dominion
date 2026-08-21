@@ -66,6 +66,7 @@
     npIndex: document.getElementById("npIndex"),
     npBadge: document.getElementById("npBadge"),
     npTitle: document.getElementById("npTitle"),
+    loadingHint: document.getElementById("loadingHint"),
     eq: Array.from(eqEl.children),
     progressFill: document.getElementById("progressFill"),
     timeCur: document.getElementById("timeCur"),
@@ -254,6 +255,24 @@
     els.timeCur.textContent = formatTime(currentTime);
     els.timeDur.textContent = formatTime(duration);
   });
+
+  // 특히 origin/ 고음질 파일은 느린 네트워크에서 로딩이 오래 걸릴 수 있다.
+  // 버튼을 눌러도 한참 소리가 안 나오면 사용자가 안 눌린 줄 알 수 있으니,
+  // 로딩이 150ms 넘게 걸리면 안내 문구를 띄운다 (짧으면 깜빡임만 하고 안 보임).
+  let loadingHintTimer = null;
+  function showLoadingHint() {
+    clearTimeout(loadingHintTimer);
+    loadingHintTimer = setTimeout(() => els.loadingHint.classList.add("visible"), 150);
+  }
+  function hideLoadingHint() {
+    clearTimeout(loadingHintTimer);
+    els.loadingHint.classList.remove("visible");
+  }
+  els.audio.addEventListener("loadstart", showLoadingHint);
+  els.audio.addEventListener("canplay", hideLoadingHint);
+  els.audio.addEventListener("playing", hideLoadingHint);
+  els.audio.addEventListener("error", hideLoadingHint);
+
   els.audio.addEventListener("ended", next);
   els.audio.addEventListener("play", updatePlayIcon);
   els.audio.addEventListener("pause", updatePlayIcon);
