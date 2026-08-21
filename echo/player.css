@@ -7,15 +7,19 @@
   --accent: #3fc4d6;
 
   /*
-   * echo/assets/device.png 픽셀 분석으로 측정한 실측값
-   * (화면 경계: 색상 임계값 스캔, 버튼: 격자 오버레이 눈금 판독).
+   * echo/assets/device.png 픽셀 분석으로 측정한 실측값. 화면 경계는 색상 임계값 스캔.
+   * 버튼은 처음엔 격자 오버레이를 눈으로 읽어 좌표를 잡았는데, 특히 세로 위치와 play
+   * 버튼 크기가 부정확했다 — 링 안쪽(글자 부분)이 비어 있는 도넛 모양이라 중심에서
+   * 바깥으로 스캔하면 빈 곳에서 바로 멈춰버리는 문제도 있었다. 이후 바깥에서 안쪽으로
+   * 스캔해 색이 있는 픽셀을 찾는 방식으로 다시 측정해서, 4개 버튼 모두 지름이
+   * 일정하다는 것(9.5%)까지 확인한 값이 아래다.
    * 값은 .device 박스(9:16, 이미지 전체 캔버스 기준) 퍼센트.
    */
   --screen-top: 10.8%;
   --screen-left: 22%;
   --screen-right: 22.2%;
   --screen-bottom: 26.6%;
-  --btn-row-top: 78.8%;
+  --btn-row-top: 78.7%;
 }
 
 *{ box-sizing: border-box; }
@@ -101,6 +105,14 @@ body{
   color: var(--ink);
   line-height: 1.5;
   text-shadow: 0 0 18px rgba(79, 216, 232, 0.45);
+}
+.crest-sub{
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--ink-dim);
+  text-shadow: none;
+  margin-bottom: 4px;
 }
 .standby-sub{
   font-size: 10px;
@@ -264,7 +276,7 @@ body{
 .ctrl{
   position: absolute;
   top: var(--btn-row-top);
-  width: 13%;
+  width: 9.5%;
   aspect-ratio: 1;
   border-radius: 50%;
   border: none;
@@ -302,10 +314,10 @@ body{
 .ctrl-menu .icon-menu,
 .ctrl-play .icon-play{ display: none; }
 
-.ctrl-prev{ left: 23.5%; width: 11%; }
-.ctrl-play{ left: 36.25%; width: 12.5%; }
-.ctrl-next{ left: 49.5%; width: 11%; }
-.ctrl-menu{ left: 63.5%; width: 11%; }
+.ctrl-prev{ left: 24.55%; }
+.ctrl-play{ left: 38.26%; }
+.ctrl-next{ left: 52.07%; }
+.ctrl-menu{ left: 65.89%; }
 
 .icon-skip{ position: relative; width: 10px; height: 12px; }
 .icon-skip::before{
