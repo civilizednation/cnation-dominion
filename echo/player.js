@@ -107,7 +107,7 @@
 
     els.art.style.setProperty("--accent", t.accent);
     els.art.style.backgroundImage =
-      `url("assets/themes/${t.themeId}.png"), radial-gradient(circle at 50% 38%, color-mix(in srgb, ${t.accent} 42%, transparent), transparent 68%)`;
+      `url("assets/themes/${t.themeId}.webp"), radial-gradient(circle at 50% 38%, color-mix(in srgb, ${t.accent} 42%, transparent), transparent 68%)`;
     els.screen.style.setProperty("--accent", t.accent);
     els.npIndex.textContent = `${String(t.themeIndex).padStart(2, "0")} · ${t.themeKo.toUpperCase()}`;
     els.npBadge.textContent = t.roman;
