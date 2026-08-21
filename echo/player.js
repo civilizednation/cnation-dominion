@@ -263,6 +263,18 @@
   els.btnPlay.addEventListener("click", () => { playClick(); togglePlay(); });
   els.btnMenu.addEventListener("click", () => { playClick(); toggleMenu(); });
 
+  // 메뉴 버튼처럼 클릭 중에 DOM을 크게 바꾸는 경우 브라우저 기본 :active가 눌린 채로
+  // 고착되는 문제가 있어서, 눌림 표시는 여기서 직접 켜고 끈다.
+  const pressButtons = [els.btnPrev, els.btnPlay, els.btnNext, els.btnMenu];
+  pressButtons.forEach((btn) => {
+    btn.addEventListener("pointerdown", () => btn.classList.add("is-pressed"));
+  });
+  function releaseAllPressed() {
+    pressButtons.forEach((btn) => btn.classList.remove("is-pressed"));
+  }
+  window.addEventListener("pointerup", releaseAllPressed);
+  window.addEventListener("pointercancel", releaseAllPressed);
+
   setScreenState("standby");
   tickEqualizer();
 })();

@@ -283,14 +283,14 @@ body{
    키보드 탐색(:focus-visible)에서만 버튼 자체 경계에 딱 맞는 box-shadow 링을 보여준다. */
 .ctrl:focus-visible{ box-shadow: 0 0 0 2px rgba(79,216,232,0.6); }
 /* 누르는 순간: 버튼과 정확히 같은 크기의 원(테두리는 border-radius:50%로 이미 확보됨)을
-   반투명 accent 색으로 채운다. 이전엔 scale(0.9) 축소 + 크게 번지는 box-shadow(블러 10px,
-   스프레드 3px)를 같이 써서, 눌린 원이 실제 사진 속 버튼 크기보다 커 보이고 위치도
-   어긋나 보였다 — 그래서 축소는 빼고 글로우도 버튼 경계에 바짝 붙게 줄였다. */
-.ctrl:active{
+   반투명 accent 색으로 채운다. 메뉴 버튼은 클릭 중 라이브러리 목록을 통째로 다시 그리는
+   DOM 변경이 같이 일어나서 브라우저 기본 :active가 눌린 채로 고착되는 문제가 있었다 —
+   그래서 :active 대신 JS에서 pointerdown/up으로 직접 켜고 끄는 .is-pressed 클래스를 쓴다. */
+.ctrl.is-pressed{
   background-color: rgba(79,216,232,0.42);
   box-shadow: 0 0 4px rgba(79,216,232,0.55);
 }
-.ctrl-menu:active{
+.ctrl-menu.is-pressed{
   background-color: rgba(227,177,92,0.44);
   box-shadow: 0 0 4px rgba(227,177,92,0.55);
 }
