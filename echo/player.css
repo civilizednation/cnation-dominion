@@ -122,6 +122,8 @@ body{
   background-size: cover;
   background-position: center;
   position: relative;
+  opacity: 0;
+  transition: opacity 500ms ease;
 }
 .art::after{
   content: "";
@@ -160,18 +162,19 @@ body{
 .eq{
   display: flex;
   align-items: flex-end;
-  gap: 3px;
-  height: 16px;
+  gap: 1.5px;
+  height: 20px;
   margin: 2px 0;
 }
 .eq span{
   flex: 1;
+  min-width: 0;
   height: 100%;
   background: var(--accent);
-  border-radius: 1px;
-  transform: scaleY(0.12);
+  border-radius: 0.5px;
+  transform: scaleY(0.06);
   transform-origin: bottom;
-  transition: transform 90ms linear;
+  transition: transform 80ms linear;
 }
 .progress-track{
   height: 3px;

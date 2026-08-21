@@ -6,6 +6,14 @@
   const BGM_BASE_HQ = "../assets/audio/bgm/origin/";
   const BGM_BASE_LQ = "../assets/audio/bgm/";
 
+  // 게임 본체와 동일한 클릭 효과음을 재사용한다.
+  const SFX_CLICK = "../assets/audio/sfx/click.wav";
+  function playClick() {
+    const sfx = new Audio(SFX_CLICK);
+    sfx.volume = 0.6;
+    sfx.play().catch(() => {});
+  }
+
   const PLAYLIST = [];
   ECHO_TRACKS.forEach((theme, ti) => {
     theme.tracks.forEach((t) => {
@@ -23,6 +31,11 @@
     });
   });
 
+  // 막대그래프가 아니라 진짜 이퀄라이저처럼 보이도록 가늘고 촘촘한 바를 여러 개 생성한다.
+  const EQ_BARS = 24;
+  const eqEl = document.getElementById("eq");
+  for (let i = 0; i < EQ_BARS; i++) eqEl.appendChild(document.createElement("span"));
+
   const els = {
     screen: document.getElementById("screen"),
     standby: document.getElementById("viewStandby"),
@@ -33,7 +46,7 @@
     npIndex: document.getElementById("npIndex"),
     npBadge: document.getElementById("npBadge"),
     npTitle: document.getElementById("npTitle"),
-    eq: Array.from(document.querySelectorAll("#eq span")),
+    eq: Array.from(eqEl.children),
     progressFill: document.getElementById("progressFill"),
     timeCur: document.getElementById("timeCur"),
     timeDur: document.getElementById("timeDur"),
@@ -85,6 +98,7 @@
         btn.className = "lib-track" + (idx === currentIndex ? " active" : "");
         btn.innerHTML = `<span class="lib-roman">${t.roman}</span><span class="lib-title">${t.title}</span>`;
         btn.addEventListener("click", () => {
+          playClick();
           selectTrack(idx);
           closeLibrary();
         });
@@ -101,7 +115,7 @@
     audioCtx = new Ctx();
     const source = audioCtx.createMediaElementSource(els.audio);
     analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 64;
+    analyser.fftSize = 256;
     source.connect(analyser);
     analyser.connect(audioCtx.destination);
   }
@@ -111,8 +125,14 @@
     const t = PLAYLIST[currentIndex];
 
     els.art.style.setProperty("--accent", t.accent);
-    els.art.style.backgroundImage =
-      `url("assets/themes/${t.themeId}.webp"), radial-gradient(circle at 50% 38%, color-mix(in srgb, ${t.accent} 42%, transparent), transparent 68%)`;
+    // 화면이 바뀔 때 이미지가 뚝 끊겨 보이지 않도록, 일단 투명하게 내렸다가
+    // 새 배경을 얹은 뒤 다음 프레임에 서서히 밝아지게 한다.
+    els.art.style.opacity = "0";
+    const artUrl = `url("assets/themes/${t.themeId}.webp"), radial-gradient(circle at 50% 38%, color-mix(in srgb, ${t.accent} 42%, transparent), transparent 68%)`;
+    requestAnimationFrame(() => {
+      els.art.style.backgroundImage = artUrl;
+      requestAnimationFrame(() => { els.art.style.opacity = "1"; });
+    });
     els.screen.style.setProperty("--accent", t.accent);
     els.npIndex.textContent = `${String(t.themeIndex).padStart(2, "0")} · ${t.themeKo.toUpperCase()}`;
     els.npBadge.textContent = t.roman;
@@ -194,15 +214,17 @@
   function tickEqualizer() {
     requestAnimationFrame(tickEqualizer);
     if (!analyser || els.audio.paused) {
-      els.eq.forEach((bar) => { bar.style.transform = "scaleY(0.12)"; });
+      els.eq.forEach((bar) => { bar.style.transform = "scaleY(0.06)"; });
       return;
     }
     const data = new Uint8Array(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(data);
-    const step = Math.max(1, Math.floor(data.length / els.eq.length));
+    // 음악 에너지가 몰려 있는 하위 60% 대역만 훑어서 바마다 눈에 띄게 움직이게 한다.
+    const usableBins = Math.floor(data.length * 0.6);
+    const step = usableBins / els.eq.length;
     els.eq.forEach((bar, i) => {
-      const v = data[i * step] / 255;
-      bar.style.transform = `scaleY(${Math.max(0.12, v)})`;
+      const v = data[Math.floor(i * step)] / 255;
+      bar.style.transform = `scaleY(${Math.max(0.06, v)})`;
     });
   }
 
@@ -216,10 +238,10 @@
   els.audio.addEventListener("play", updatePlayIcon);
   els.audio.addEventListener("pause", updatePlayIcon);
 
-  els.btnPrev.addEventListener("click", prev);
-  els.btnNext.addEventListener("click", next);
-  els.btnPlay.addEventListener("click", togglePlay);
-  els.btnMenu.addEventListener("click", toggleMenu);
+  els.btnPrev.addEventListener("click", () => { playClick(); prev(); });
+  els.btnNext.addEventListener("click", () => { playClick(); next(); });
+  els.btnPlay.addEventListener("click", () => { playClick(); togglePlay(); });
+  els.btnMenu.addEventListener("click", () => { playClick(); toggleMenu(); });
 
   setScreenState("standby");
   tickEqualizer();
