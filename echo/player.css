@@ -277,12 +277,22 @@ body{
   padding: 0;
   outline: none;
   -webkit-tap-highlight-color: transparent;
+  transition: transform 90ms ease, background-color 90ms ease, box-shadow 90ms ease;
 }
 /* 클릭/탭 시 브라우저 기본 포커스 링은 원형 버튼 경계와 안 맞아서 어긋나 보이므로 끈다.
    키보드 탐색(:focus-visible)에서만 버튼 자체 경계에 딱 맞는 box-shadow 링을 보여준다. */
 .ctrl:focus-visible{ box-shadow: 0 0 0 2px rgba(79,216,232,0.6); }
-.ctrl:active{ background: radial-gradient(circle, rgba(79,216,232,0.3), transparent 70%); }
-.ctrl-menu:active{ background: radial-gradient(circle, rgba(227,177,92,0.32), transparent 70%); }
+/* 누르는 순간: 버튼과 정확히 같은 크기의 원(테두리는 border-radius:50%로 이미 확보됨)을
+   반투명 accent 색으로 채우고, 살짝 눌리는 느낌을 주는 축소 + 바깥으로 번지는 글로우. */
+.ctrl:active{
+  transform: scale(0.9);
+  background-color: rgba(79,216,232,0.38);
+  box-shadow: 0 0 10px 3px rgba(79,216,232,0.5);
+}
+.ctrl-menu:active{
+  background-color: rgba(227,177,92,0.4);
+  box-shadow: 0 0 10px 3px rgba(227,177,92,0.5);
+}
 
 /* 4개 버튼 전부 사진에 아이콘이 이미 그려져 있어 투명 히트박스로만 쓴다.
    재생 상태는 화면 안 이퀄라이저/진행바로 표시된다. */
