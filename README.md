@@ -47,7 +47,7 @@ node static-server.mjs
 http://localhost:5177/echo/
 ```
 
-기기 셸 이미지(`echo/assets/device.png`)와 테마별 화면 아트(`echo/assets/themes/{테마id}.webp`, 10장)는 아직 없어도 자리표시자 배경으로 정상 동작하며, 파일을 넣으면 자동으로 반영됩니다. 이미지 생성 프롬프트는 별도 기획 문서를 참고하세요.
+기기 셸 이미지(`echo/assets/device.png`)와 테마별 화면 아트(`echo/assets/themes/{테마id}.webp`, 10장)가 포함되어 있습니다. 둘 다 없어도 자리표시자 배경으로 정상 동작하니, 다른 이미지로 교체하고 싶으면 같은 경로에 덮어쓰면 됩니다.
 
 ## 참고
 

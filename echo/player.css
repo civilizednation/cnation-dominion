@@ -7,15 +7,15 @@
   --accent: #3fc4d6;
 
   /*
-   * echo/assets/device.png (정면 샷) 기준으로 눈대중 보정한 좌표.
-   * 실제 파일을 넣고 나면 픽셀 단위로 다시 미세조정할 것.
+   * echo/assets/device.png 픽셀 분석으로 측정한 실측값
+   * (화면 경계: 색상 임계값 스캔, 버튼: 격자 오버레이 눈금 판독).
    * 값은 .device 박스(9:16, 이미지 전체 캔버스 기준) 퍼센트.
    */
-  --screen-top: 12%;
-  --screen-left: 24%;
-  --screen-right: 22%;
-  --screen-bottom: 28%;
-  --btn-row-top: 76%;
+  --screen-top: 10.8%;
+  --screen-left: 22%;
+  --screen-right: 22.2%;
+  --screen-bottom: 26.6%;
+  --btn-row-top: 78.8%;
 }
 
 *{ box-sizing: border-box; }
@@ -222,15 +222,15 @@ body{
 }
 .lib-track{
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-start;
+  gap: 5px;
   background: var(--surface, #121722);
   border: 1px solid var(--screen-line);
   border-radius: 6px;
-  padding: 6px 8px;
+  padding: 6px 7px;
   color: var(--ink);
   font-family: "Noto Sans KR", sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   text-align: left;
   cursor: pointer;
 }
@@ -249,34 +249,43 @@ body{
   flex: 0 0 auto;
 }
 .lib-title{
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.25;
 }
 
 /* ---- controls ---- */
+/*
+ * 실제 device.png 사진에 이전/다음/메뉴 아이콘이 이미 그려져 있으므로,
+ * 여기서는 클릭 가능한 투명 히트박스만 겹친다 (호버 시에만 은은한 링 표시).
+ * 재생/일시정지만 상태에 따라 바뀌어야 해서 아이콘을 실제로 그린다.
+ */
 .ctrl{
   position: absolute;
   top: var(--btn-row-top);
   width: 13%;
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(10,14,20,0.55);
+  border: 1px solid transparent;
+  background: transparent;
   color: rgba(207,227,234,0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  backdrop-filter: blur(2px);
 }
-.ctrl:hover{ border-color: rgba(79,216,232,0.6); color: #fff; }
+.ctrl:hover{ border-color: rgba(79,216,232,0.45); }
 .ctrl:active{ transform: scale(0.94); }
 
-.ctrl-prev{ left: 24%; width: 11%; }
-.ctrl-play{ left: 36%; width: 14%; }
-.ctrl-next{ left: 51%; width: 11%; }
-.ctrl-menu{ left: 64%; width: 11%; }
+/* 4개 버튼 전부 사진에 아이콘이 이미 그려져 있어 투명 히트박스로만 쓴다.
+   재생 상태는 화면 안 이퀄라이저/진행바로 표시된다. */
+.ctrl-prev .icon-skip,
+.ctrl-next .icon-skip,
+.ctrl-menu .icon-menu,
+.ctrl-play .icon-play{ display: none; }
+
+.ctrl-prev{ left: 23.5%; width: 11%; }
+.ctrl-play{ left: 36.25%; width: 12.5%; }
+.ctrl-next{ left: 49.5%; width: 11%; }
+.ctrl-menu{ left: 63.5%; width: 11%; }
 
 .icon-skip{ position: relative; width: 10px; height: 12px; }
 .icon-skip::before{
