@@ -33,8 +33,10 @@
     .start-actions { display: flex; justify-content: center; align-items: stretch; gap: 8px; width: 100%; }
     .title .start-actions .start { width: auto; min-width: 0; flex: 0 1 190px; align-self: stretch; }
     .title .start-actions .mini-start { flex-basis: 150px; background: #356b65; color: #fff8df; border: 1px solid #d7b75f; font-size: 15px; }
-    .pc-version-link { align-self: center; margin-top: 1px; padding: 4px 10px; color: #bca98b; font-size: 10px; line-height: 1.2; text-align: center; text-decoration: underline; text-underline-offset: 2px; }
+    .footer-links { align-self: center; display: flex; align-items: center; gap: 8px; margin-top: 1px; }
+    .pc-version-link { padding: 4px 10px; color: #bca98b; font-size: 10px; line-height: 1.2; text-align: center; text-decoration: underline; text-underline-offset: 2px; }
     .pc-version-link:hover, .pc-version-link:focus-visible { color: #fff0c8; }
+    .footer-links .link-sep { color: #6f563b; font-size: 10px; }
     .game { flex-direction: column; height: 100%; }
     .opponent { height: 11%; min-height: 96px; padding: 8px 10px; background: #1b120d; border-bottom: 1px solid #4f3827; }
     .player { flex: 0 0 auto; min-height: 0; padding: 6px 10px 6px; background: #1b120d; border-bottom: 1px solid #4f3827; }
@@ -219,11 +221,19 @@
         <button id="startBtn" class="start">게임 시작</button>
         <button id="miniStartBtn" class="start mini-start">미니게임 시작</button>
       </div>
-      <a
-        class="pc-version-link"
-        href="https://civilizednation.github.io/cnation-dominion/index_pc.html"
-        onclick="event.preventDefault(); window.location.replace(this.href);"
-      >도미니언 PC 버젼 연결</a>
+      <div class="footer-links">
+        <a
+          class="pc-version-link"
+          href="https://civilizednation.github.io/cnation-dominion/index_pc.html"
+          onclick="event.preventDefault(); window.location.replace(this.href);"
+        >도미니언 PC 버젼 연결</a>
+        <span class="link-sep">|</span>
+        <a
+          class="pc-version-link"
+          href="https://cnation-dominion.vercel.app/echo/"
+          onclick="event.preventDefault(); window.location.replace(this.href);"
+        >배경음악 플레이어</a>
+      </div>
     </section>
 
     <section id="gameScreen" class="screen game">
