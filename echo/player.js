@@ -6,12 +6,32 @@
   const BGM_BASE_HQ = "../assets/audio/bgm/origin/";
   const BGM_BASE_LQ = "../assets/audio/bgm/";
 
-  // 게임 본체와 동일한 클릭 효과음을 재사용한다.
-  const SFX_CLICK = "../assets/audio/sfx/click.wav";
+  // 비교 테스트용: click.wav 파일을 불러오는 대신 Web Audio API로 그 자리에서
+  // 클릭음을 합성한다 — 네트워크 요청/디코딩이 없어서 지연이 있다면 wav 방식과
+  // 체감 차이가 드러난다.
+  let sfxCtx = null;
+  function ensureSfxCtx() {
+    if (!sfxCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      sfxCtx = new Ctx();
+    }
+    if (sfxCtx.state === "suspended") sfxCtx.resume();
+    return sfxCtx;
+  }
   function playClick() {
-    const sfx = new Audio(SFX_CLICK);
-    sfx.volume = 0.6;
-    sfx.play().catch(() => {});
+    const ctx = ensureSfxCtx();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(1200, now);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.25, now + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.04);
   }
 
   const PLAYLIST = [];
