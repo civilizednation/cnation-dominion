@@ -10,12 +10,18 @@ const types = {
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".svg": "image/svg+xml",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
 };
 
 http.createServer((req, res) => {
   const url = new URL(req.url || "/", `http://localhost:${port}`);
   const decoded = decodeURIComponent(url.pathname);
-  const rel = decoded === "/" ? "index.html" : decoded.replace(/^\/+/, "");
+  const rel = (decoded.endsWith("/") ? `${decoded}index.html` : decoded).replace(/^\/+/, "");
   const file = path.resolve(root, rel);
   if (!file.startsWith(root)) {
     res.writeHead(403);
