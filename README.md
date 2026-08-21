@@ -35,6 +35,20 @@ dominion-github-ready/
       └─ 32 card PNG files
 ```
 
+## Dominion Echo (BGM 플레이어)
+
+`echo/` 폴더에 게임 배경음악 20곡(10테마 × 2곡)을 골라 들을 수 있는 미래형 기기 컨셉의 별도 플레이어가 있습니다.
+
+```bash
+node static-server.mjs
+```
+
+```text
+http://localhost:5177/echo/
+```
+
+기기 셸 이미지(`echo/assets/device.png`)와 테마별 화면 아트(`echo/assets/themes/{테마id}.webp`, 10장)가 포함되어 있습니다. 둘 다 없어도 자리표시자 배경으로 정상 동작하니, 다른 이미지로 교체하고 싶으면 같은 경로에 덮어쓰면 됩니다.
+
 ## 참고
 
 카드 이미지는 이 프로젝트용으로 생성한 비공식 프로토타입 이미지입니다.
