@@ -1,13 +1,17 @@
 (() => {
   "use strict";
 
-  const BGM_BASE = "../assets/audio/bgm/";
+  // origin/ 안에 원본 고음질(192k) 파일이 있으면 그걸 재생하고,
+  // 아직 없거나 로드에 실패하면 게임용 저음질(64k) 파일로 자동 대체한다.
+  const BGM_BASE_HQ = "../assets/audio/bgm/origin/";
+  const BGM_BASE_LQ = "../assets/audio/bgm/";
 
   const PLAYLIST = [];
   ECHO_TRACKS.forEach((theme, ti) => {
     theme.tracks.forEach((t) => {
       PLAYLIST.push({
-        file: BGM_BASE + t.file,
+        fileHQ: BGM_BASE_HQ + t.file,
+        fileLQ: BGM_BASE_LQ + t.file,
         title: t.title,
         titleEn: t.titleEn,
         roman: t.roman,
@@ -44,6 +48,7 @@
   let libraryOpen = false;
   let audioCtx = null;
   let analyser = null;
+  let wantsPlaying = false;
 
   function formatTime(sec) {
     if (!Number.isFinite(sec)) return "0:00";
@@ -113,22 +118,37 @@
     els.npBadge.textContent = t.roman;
     els.npTitle.textContent = t.title;
 
-    els.audio.src = t.file;
+    els.audio.dataset.triedFallback = "";
+    els.audio.src = t.fileHQ;
+    wantsPlaying = autoplay;
     setScreenState("playing");
     if (autoplay) play();
   }
+
+  // HQ 원본이 아직 없거나(404) 로드에 실패하면, 같은 트랙의 저음질 버전으로 한 번만 대체한다.
+  // 실패 시점엔 재생이 아직 시작되지 못해 audio.paused가 true일 수 있으므로,
+  // 실제 재생 상태 대신 "재생 의도"(wantsPlaying)를 기준으로 이어서 재생한다.
+  els.audio.addEventListener("error", () => {
+    if (currentIndex === null || els.audio.dataset.triedFallback === "1") return;
+    const t = PLAYLIST[currentIndex];
+    els.audio.dataset.triedFallback = "1";
+    els.audio.src = t.fileLQ;
+    if (wantsPlaying) els.audio.play().catch(() => {});
+  });
 
   function play() {
     if (currentIndex === null) {
       selectTrack(0);
       return;
     }
+    wantsPlaying = true;
     ensureAudioGraph();
     if (audioCtx.state === "suspended") audioCtx.resume();
     els.audio.play().catch(() => {});
   }
 
   function pause() {
+    wantsPlaying = false;
     els.audio.pause();
   }
 
