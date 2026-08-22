@@ -206,7 +206,19 @@ body{
   transform-origin: bottom;
   transition: transform 80ms linear;
 }
+/* 실제 막대는 3px로 얇게 유지하되, 손가락/마우스로 잡기 쉽게 히트 영역은 더 크게 잡는다. */
+.progress-hit{
+  position: relative;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 .progress-track{
+  width: 100%;
   height: 3px;
   border-radius: 2px;
   background: var(--screen-line);
@@ -216,6 +228,18 @@ body{
   height: 100%;
   width: 0%;
   background: var(--accent);
+}
+.progress-thumb{
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--accent) 70%, transparent);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 .progress-time{
   display: flex;

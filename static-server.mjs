@@ -28,14 +28,39 @@ http.createServer((req, res) => {
     res.end("Forbidden");
     return;
   }
-  fs.readFile(file, (err, data) => {
-    if (err) {
+  fs.stat(file, (statErr, stat) => {
+    if (statErr || !stat.isFile()) {
       res.writeHead(404);
       res.end("Not found");
       return;
     }
-    res.writeHead(200, { "content-type": types[path.extname(file)] || "application/octet-stream" });
-    res.end(data);
+    const contentType = types[path.extname(file)] || "application/octet-stream";
+    const range = req.headers.range;
+    // 오디오 탐색(seek)은 브라우저가 Range 요청으로 필요한 구간만 가져오는 방식에 의존한다.
+    if (range) {
+      const match = /bytes=(\d*)-(\d*)/.exec(range);
+      const start = match && match[1] ? parseInt(match[1], 10) : 0;
+      const end = match && match[2] ? parseInt(match[2], 10) : stat.size - 1;
+      if (start >= stat.size || end >= stat.size || start > end) {
+        res.writeHead(416, { "content-range": `bytes */${stat.size}` });
+        res.end();
+        return;
+      }
+      res.writeHead(206, {
+        "content-type": contentType,
+        "content-length": end - start + 1,
+        "content-range": `bytes ${start}-${end}/${stat.size}`,
+        "accept-ranges": "bytes",
+      });
+      fs.createReadStream(file, { start, end }).pipe(res);
+      return;
+    }
+    res.writeHead(200, {
+      "content-type": contentType,
+      "content-length": stat.size,
+      "accept-ranges": "bytes",
+    });
+    fs.createReadStream(file).pipe(res);
   });
 }).listen(port, "127.0.0.1", () => {
   console.log(`Dominion webgame: http://localhost:${port}/`);

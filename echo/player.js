@@ -68,7 +68,9 @@
     npTitle: document.getElementById("npTitle"),
     loadingHint: document.getElementById("loadingHint"),
     eq: Array.from(eqEl.children),
+    progressHit: document.getElementById("progressHit"),
     progressFill: document.getElementById("progressFill"),
+    progressThumb: document.getElementById("progressThumb"),
     timeCur: document.getElementById("timeCur"),
     timeDur: document.getElementById("timeDur"),
     audio: document.getElementById("audio"),
@@ -249,12 +251,42 @@
     });
   }
 
+  function setProgressDisplay(ratio) {
+    const pct = `${ratio * 100}%`;
+    els.progressFill.style.width = pct;
+    els.progressThumb.style.left = pct;
+  }
+
   els.audio.addEventListener("timeupdate", () => {
     const { currentTime, duration } = els.audio;
-    els.progressFill.style.width = duration ? `${(currentTime / duration) * 100}%` : "0%";
+    if (!isSeeking) setProgressDisplay(duration ? currentTime / duration : 0);
     els.timeCur.textContent = formatTime(currentTime);
     els.timeDur.textContent = formatTime(duration);
   });
+
+  // 진행바를 누르거나 드래그해서 원하는 위치로 빨리감기/되감기.
+  let isSeeking = false;
+  function seekToClientX(clientX) {
+    const duration = els.audio.duration;
+    if (!Number.isFinite(duration) || duration <= 0) return;
+    const rect = els.progressHit.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    els.audio.currentTime = ratio * duration;
+    els.timeCur.textContent = formatTime(els.audio.currentTime);
+    setProgressDisplay(ratio);
+  }
+  els.progressHit.addEventListener("pointerdown", (e) => {
+    if (currentIndex === null) return;
+    isSeeking = true;
+    els.progressHit.setPointerCapture(e.pointerId);
+    seekToClientX(e.clientX);
+  });
+  els.progressHit.addEventListener("pointermove", (e) => {
+    if (!isSeeking) return;
+    seekToClientX(e.clientX);
+  });
+  els.progressHit.addEventListener("pointerup", () => { isSeeking = false; });
+  els.progressHit.addEventListener("pointercancel", () => { isSeeking = false; });
 
   // 특히 origin/ 고음질 파일은 느린 네트워크에서 로딩이 오래 걸릴 수 있다.
   // 버튼을 눌러도 한참 소리가 안 나오면 사용자가 안 눌린 줄 알 수 있으니,
