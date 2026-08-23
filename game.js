@@ -717,7 +717,7 @@ $("miniStartBtn").onclick = async () => {
   sound("confirm");
   await window.CNationAudio?.unlock?.();
   const button = $("miniStartBtn");
-  const originalText = button.textContent;
+  const originalHtml = button.innerHTML;
   $("startBtn").disabled = true;
   button.disabled = true;
   button.textContent = "불러오는 중...";
@@ -730,7 +730,7 @@ $("miniStartBtn").onclick = async () => {
     sound("warning");
     alert(error.message + "\nindex.html과 같은 위치에 mini.js가 있는지 확인하세요.");
   } finally {
-    button.textContent = originalText;
+    button.innerHTML = originalHtml;
     button.disabled = false;
     $("startBtn").disabled = false;
   }

@@ -39,7 +39,8 @@
     .start { height: 46px; border-radius: 8px; background: #d7a93f; color: #2b1a0e; font-weight: 900; font-size: 18px; }
     .title .start { width: 33.333%; min-width: 160px; align-self: center; }
     .start-actions { display: flex; justify-content: center; align-items: stretch; gap: 8px; width: 100%; }
-    .title .start-actions .start { width: auto; min-width: 0; flex: 0 1 190px; align-self: stretch; }
+    .title .start-actions .start { width: auto; min-width: 0; flex: 0 1 190px; align-self: stretch; line-height: 1.15; }
+    .title .start-actions .start small { display: block; margin-top: 1px; font-size: 10px; font-weight: 700; opacity: .8; }
     .title .start-actions .mini-start { flex-basis: 150px; background: #356b65; color: #fff8df; border: 1px solid #d7b75f; font-size: 15px; }
     .footer-links { align-self: center; display: flex; align-items: center; gap: 8px; margin-top: 1px; }
     .pc-version-link { padding: 4px 10px; color: #bca98b; font-size: 10px; line-height: 1.2; text-align: center; text-decoration: underline; text-underline-offset: 2px; }
@@ -139,6 +140,7 @@
       .title .start { min-width: 130px; }
       .start-actions { gap: 6px; }
       .title .start-actions .start { min-width: 0; flex-basis: 55%; }
+      .title .start-actions .start small { font-size: 9px; }
       .title .start-actions .mini-start { flex-basis: 45%; font-size: 13px; }
       .end { padding: 8px; }
       .end-card { max-height: calc(100dvh - 16px); padding: 10px; }
@@ -207,7 +209,7 @@
   <main class="app">
     <section id="titleScreen" class="screen title active">
       <div>
-        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.14</span></h1>
+        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.15</span></h1>
         <p>컴퓨터와 즐기는 1:1 도미니언 웹게임</p>
       </div>
       <div class="panel">
@@ -226,8 +228,8 @@
         <div id="soundChoices" class="sound-options"></div>
       </div>
       <div class="start-actions">
-        <button id="startBtn" class="start">게임 시작</button>
-        <button id="miniStartBtn" class="start mini-start">미니게임 시작</button>
+        <button id="startBtn" class="start">게임 시작<br><small>(태블릿용)</small></button>
+        <button id="miniStartBtn" class="start mini-start">게임 시작<br><small>(스마트폰용)</small></button>
       </div>
       <div class="footer-links">
         <a
