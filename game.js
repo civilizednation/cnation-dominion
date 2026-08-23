@@ -618,13 +618,14 @@ function resultPlayerHtml(p) {
   const scoreRows = rows.map(row => `<div><span>${cards[row.id].name} ${row.count}장</span><b>${row.points}점</b></div>`).join("");
   return `<section class="result-player"><div class="result-player-head"><h3>${p.name}</h3><strong>${score(p)}점</strong><span>총 ${totalCards}장 · ${p.turns}턴</span></div><div class="result-holdings">${holdings}</div><div class="result-score">${scoreRows || "<div><span>승점 카드 없음</span><b>0점</b></div>"}<div class="total"><span>총점</span><b>${score(p)}점</b></div></div></section>`;
 }
-function resultSummaryHtml(ps, s0, s1, title) {
+function resultSummaryHtml(ps, s0, s1) {
   const mode = modes[state.mode];
   const reason = checkEnd() ? mode.desc : "승리 조건 달성";
   const winner = s0 === s1
     ? (ps[0].turns <= ps[1].turns ? "동점이지만 턴 수 기준으로 내가 승리했습니다." : "동점이지만 턴 수 기준으로 컴퓨터가 승리했습니다.")
     : (s0 > s1 ? "내가 컴퓨터보다 높은 점수로 승리했습니다." : "컴퓨터가 더 높은 점수로 승리했습니다.");
-  return `<div class="result-summary"><strong>${title}</strong><span>내 점수 ${s0}점 · 컴퓨터 ${s1}점</span><p>${winner}</p><small>종료 조건: ${reason}</small></div><div class="result-board">${resultPlayerHtml(ps[0])}${resultPlayerHtml(ps[1])}</div>`;
+  // the title ("승리!" etc.) is already shown in #endTitle above this, so it isn't repeated here
+  return `<div class="result-summary"><span>내 점수 ${s0}점 · 컴퓨터 ${s1}점</span><p>${winner}</p><small>종료 조건: ${reason}</small></div><div class="result-board">${resultPlayerHtml(ps[0])}${resultPlayerHtml(ps[1])}</div>`;
 }
 function checkEnd() {
   const mode = modes[state.mode];
@@ -638,7 +639,7 @@ function endGame() {
   let title = s0 > s1 ? "승리!" : s0 < s1 ? "패배" : ps[0].turns <= ps[1].turns ? "동점 승리" : "동점 패배";
   window.CNationAudio?.playResult?.();
   $("endTitle").textContent = title;
-  $("endText").innerHTML = resultSummaryHtml(ps, s0, s1, title);
+  $("endText").innerHTML = resultSummaryHtml(ps, s0, s1);
   $("restartBtn").textContent = "확인";
   $("endScreen").classList.add("active");
   render();
