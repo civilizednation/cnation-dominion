@@ -471,12 +471,12 @@ function aiActionIndex(p) {
   })[0];
 }
 // how many cards a deck must reach before the AI starts buying duchy (outside the guaranteed
-// province grab below); "하" greens almost immediately, "최상" holds off until the province pile
-// itself is running low, keeping its engine bigger for longer.
-const GREEN_AT = {easy:14, normal:24, hard:23, extreme:Infinity};
+// province grab below); "중" is the earliest tier this applies to — "최상" holds off until the
+// province pile itself is running low, keeping its engine bigger for longer. "하" doesn't use this
+// at all; see aiBuyPick's early branch instead.
+const GREEN_AT = {normal:24, hard:23, extreme:Infinity};
 function aiBuyPriorities(diffId) {
   const preset = presets[state.preset].ids;
-  if (diffId === "easy") return ["duchy","estate","gold","silver",...preset];
   if (diffId === "normal") return ["gold","witch","laboratory","market","festival","council","mine","silver","village","smithy","duchy","gardens","estate",...preset];
   if (diffId === "hard") return ["gold","witch","laboratory","market","festival","council","mine","silver","village","smithy","chapel","moneylender","militia","duchy","gardens","estate",...preset];
   return ["chapel","gold","witch","laboratory","market","festival","council","mine","silver","village","smithy","moneylender","militia","duchy","gardens","estate",...preset];
@@ -492,7 +492,16 @@ function buyCap(diffId, id) {
 }
 function aiBuyPick(p, maxCost, pool=Object.keys(state.supply)) {
   if (maxCost >= 8 && state.supply.province) return "province";
-  const diffId = state.diff, total = allCards(p).length;
+  const diffId = state.diff;
+  if (diffId === "easy") {
+    // mimics a first-time player with no real strategy: grabs whichever affordable card has the
+    // highest cost. This still buys treasure reasonably often (by accident) but also wastes buys
+    // on victory cards the moment they outrank silver/gold in raw cost — a genuine beginner mistake
+    // rather than the deliberately-crippled "always green first" priority list this replaced.
+    const candidates = pool.filter(id => state.supply[id] > 0 && cards[id].cost > 0 && cards[id].cost <= maxCost);
+    return candidates.length ? candidates.sort((a,b)=>cards[b].cost-cards[a].cost)[0] : null;
+  }
+  const total = allCards(p).length;
   const provinceLow = diffId === "extreme" && state.supply.province <= 4;
   if ((total > (GREEN_AT[diffId] ?? 24) || provinceLow) && maxCost >= 5 && state.supply.duchy) return "duchy";
   const priorities = aiBuyPriorities(diffId);
