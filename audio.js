@@ -27,7 +27,7 @@
   const RESULT_BGM = {win: "result.mp3", lose: "result-lose.mp3", draw: "result.mp3"};
   const RESULT_PRELOAD = ["result.mp3", "result-lose.mp3"];
   // the lose track was mixed quieter than the others and was hard to hear at normal BGM levels
-  const RESULT_VOLUME_MULTIPLIER = {lose: 1.3};
+  const RESULT_VOLUME_MULTIPLIER = {lose: 1.56};
 
   const DEFAULT_BGM_VOLUME = 0.25;
   const DEFAULT_SFX_VOLUME = 1;
