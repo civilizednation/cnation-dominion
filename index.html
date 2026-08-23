@@ -20,9 +20,10 @@
     .diff-grid { grid-template-columns: repeat(4, 1fr); }
     .loading { flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: #1c130e; }
     .loading-crest { font-family: Georgia, "Times New Roman", "Malgun Gothic", serif; letter-spacing: .16em; font-size: 12px; font-weight: 700; color: #9c7c4f; text-transform: uppercase; }
-    .loading-ring { width: 42px; height: 42px; border-radius: 50%; border: 3px solid #4a3322; border-top-color: #d7a93f; animation: loading-spin .9s linear infinite; }
+    .loading-bar { width: 240px; max-width: 60vw; height: 10px; border-radius: 999px; background: #3a281c; border: 1px solid #6a5035; overflow: hidden; }
+    .loading-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #d7a93f, #f4cf6d); border-radius: 999px; transition: width .12s linear; }
     .loading-text { margin: 0; max-width: 260px; color: #e9d8b8; font-size: 14px; line-height: 1.6; text-align: center; }
-    @keyframes loading-spin { to { transform: rotate(360deg); } }
+    .loading-text b { color: #f4cf6d; }
     .deck-grid { display: grid; grid-template-columns: 1fr; gap: 4px; }
     .choice { min-height: 38px; padding: 6px 8px; border-radius: 8px; background: #4a3322; border: 2px solid transparent; text-align: left; overflow: hidden; }
     .choice strong { display: block; font-size: 14px; line-height: 1.15; }
@@ -245,8 +246,8 @@
 
     <section id="loadingScreen" class="screen loading">
       <span class="loading-crest">DOMINION</span>
-      <div class="loading-ring"></div>
-      <p class="loading-text">게임에 필요한 이미지와 음악을<br>불러오는 중입니다...</p>
+      <div class="loading-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div id="loadingBarFill" class="loading-bar-fill"></div></div>
+      <p class="loading-text">게임에 필요한 이미지와 음악을 불러오는 중입니다... <b id="loadingPercent">0%</b></p>
     </section>
 
     <section id="gameScreen" class="screen game">

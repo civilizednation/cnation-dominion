@@ -112,13 +112,59 @@ function sound(kind="click") {
   } catch {}
 }
 const BASE_CARD_IDS = ["copper","silver","gold","estate","duchy","province","curse"];
-function preloadImages(ids) {
-  const urls = [...new Set(ids.map(id => IMG + cards[id].img))];
-  return Promise.allSettled(urls.map(src => new Promise(resolve => {
-    const img = new Image();
-    img.onload = img.onerror = resolve;
-    img.src = src;
-  })));
+function cardImageUrls(ids) {
+  return [...new Set(ids.map(id => IMG + cards[id].img))];
+}
+// downloads every url in parallel while reporting combined real progress via onProgress(0..1),
+// priming the browser's HTTP cache so later <img>/<audio> requests for the same URLs load
+// instantly. Races a hard timeout so a genuinely stalled connection can't leave a loading screen
+// stuck.
+//
+// Each file gets an equal fixed weight of 1/N — known instantly, with no network round trip —
+// and contributes its own live byte fraction (0..1) within that slice once its own response
+// headers arrive. Two alternatives were tried and rejected: summing live content-length headers
+// into one shared denominator makes the total grow unpredictably as more files' headers trickle
+// in, so the fraction can visibly jump backward; waiting for every header before computing
+// anything fixes that but, behind a browser's ~6-connections-per-origin cap, means nothing moves
+// for several seconds while the first wave of files fully downloads. Fixed per-file weights avoid
+// both: the denominator never changes, and whichever files are already in flight start
+// contributing immediately.
+function preloadWithProgress(urls, onProgress, timeoutMs = 30000) {
+  const list = [...new Set(urls)].filter(Boolean);
+  const n = list.length;
+  if (!n) { onProgress(1); return Promise.resolve(); }
+  const shareDone = list.map(() => 0);
+  const report = () => onProgress(Math.min(1, shareDone.reduce((a, b) => a + b, 0) / n));
+  const work = Promise.all(list.map(async (url, i) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok || !res.body) { shareDone[i] = 1; return report(); }
+      const total = Number(res.headers.get("content-length")) || 0;
+      const reader = res.body.getReader();
+      let loaded = 0;
+      for (;;) {
+        const {done, value} = await reader.read();
+        if (done) break;
+        loaded += value.byteLength;
+        shareDone[i] = total > 0 ? Math.min(1, loaded / total) : 0.5;
+        report();
+      }
+      shareDone[i] = 1;
+      report();
+    } catch {
+      shareDone[i] = 1;
+      report();
+    }
+  })).then(() => onProgress(1));
+  const timeout = new Promise(resolve => setTimeout(resolve, timeoutMs));
+  return Promise.race([work, timeout]);
+}
+function setLoadingProgress(fraction) {
+  const pct = Math.round(Math.max(0, Math.min(1, fraction)) * 100);
+  const fill = $("loadingBarFill");
+  if (fill) fill.style.width = `${pct}%`;
+  const label = $("loadingPercent");
+  if (label) label.textContent = `${pct}%`;
 }
 
 function loadMiniScript() {
@@ -179,11 +225,12 @@ async function startGame() {
   const presetIds = presets[selectedPreset].ids;
   $("titleScreen").classList.remove("active");
   $("loadingScreen").classList.add("active");
+  setLoadingProgress(0);
   // wait for this game's card art + its kingdom's first BGM track before showing the board, so
   // slow connections don't see cards pop in one by one mid-game
-  const imagesReady = window.CNationMini?.enabled ? Promise.resolve() : preloadImages([...BASE_CARD_IDS, ...presetIds]);
-  const audioReady = window.CNationAudio?.preloadKingdomReady?.(selectedPreset) ?? Promise.resolve();
-  await Promise.all([imagesReady, audioReady]);
+  const imageUrls = window.CNationMini?.enabled ? [] : cardImageUrls([...BASE_CARD_IDS, ...presetIds]);
+  const bgmTrackUrl = window.CNationAudio?.kingdomFirstTrackUrl?.(selectedPreset);
+  await preloadWithProgress([...imageUrls, ...(bgmTrackUrl ? [bgmTrackUrl] : [])], setLoadingProgress);
 
   uid = 1;
   selectedTreasures.clear();

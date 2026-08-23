@@ -185,11 +185,14 @@
     title.classList.remove("active");
     const loading = document.getElementById("loadingScreen");
     loading?.classList.add("active");
+    if (typeof setLoadingProgress === "function") setLoadingProgress(0);
 
     const preset = presets[selectedPreset];
-    const imagesReady = typeof preloadImages === "function" ? preloadImages(preset.ids) : Promise.resolve();
-    const audioReady = window.CNationAudio?.preloadKingdomReady?.(selectedPreset) ?? Promise.resolve();
-    await Promise.all([imagesReady, audioReady]);
+    const imageUrls = typeof cardImageUrls === "function" ? cardImageUrls(preset.ids) : [];
+    const bgmTrackUrl = window.CNationAudio?.kingdomFirstTrackUrl?.(selectedPreset);
+    if (typeof preloadWithProgress === "function") {
+      await preloadWithProgress([...imageUrls, ...(bgmTrackUrl ? [bgmTrackUrl] : [])], setLoadingProgress);
+    }
 
     window.CNationAudio?.playKingdom?.(selectedPreset, true);
     render();
