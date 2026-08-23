@@ -47,7 +47,7 @@ body{
   width: min(94vw, calc(90vh * 9 / 16), 480px);
   aspect-ratio: 9 / 16;
   border-radius: 34px;
-  background-image: url("assets/device.png"), linear-gradient(165deg, #232b3a 0%, #0d1119 55%, #060809 100%);
+  background-image: url("assets/device.webp"), linear-gradient(165deg, #232b3a 0%, #0d1119 55%, #060809 100%);
   background-size: cover;
   background-position: center;
   box-shadow: 0 30px 70px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset;
