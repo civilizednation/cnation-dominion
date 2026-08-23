@@ -618,14 +618,29 @@ function resultPlayerHtml(p) {
   const scoreRows = rows.map(row => `<div><span>${cards[row.id].name} ${row.count}장</span><b>${row.points}점</b></div>`).join("");
   return `<section class="result-player"><div class="result-player-head"><h3>${p.name}</h3><strong>${score(p)}점</strong><span>총 ${totalCards}장 · ${p.turns}턴</span></div><div class="result-holdings">${holdings}</div><div class="result-score">${scoreRows || "<div><span>승점 카드 없음</span><b>0점</b></div>"}<div class="total"><span>총점</span><b>${score(p)}점</b></div></div></section>`;
 }
+// single source of truth for who won: score first, then fewer turns as the tiebreaker (matches
+// the official rule — whoever ends the game on their own turn denies the opponent a final turn,
+// so they never end up with MORE turns than the opponent). A genuine tie needs BOTH score and
+// turn count equal, which is its own "무승부" outcome rather than defaulting to either side.
+function matchOutcome(ps, s0, s1) {
+  if (s0 === s1 && ps[0].turns === ps[1].turns) {
+    return {outcome: "draw", title: "무승부", sentence: "점수와 턴 수까지 모두 같아 무승부입니다."};
+  }
+  if (s0 !== s1) {
+    return s0 > s1
+      ? {outcome: "win", title: "승리!", sentence: "내가 컴퓨터보다 높은 점수로 승리했습니다."}
+      : {outcome: "lose", title: "패배", sentence: "컴퓨터가 더 높은 점수로 승리했습니다."};
+  }
+  return ps[0].turns < ps[1].turns
+    ? {outcome: "win", title: "동점 승리", sentence: "동점이지만 턴 수 기준으로 내가 승리했습니다."}
+    : {outcome: "lose", title: "동점 패배", sentence: "동점이지만 턴 수 기준으로 컴퓨터가 승리했습니다."};
+}
 function resultSummaryHtml(ps, s0, s1) {
   const mode = modes[state.mode];
   const reason = checkEnd() ? mode.desc : "승리 조건 달성";
-  const winner = s0 === s1
-    ? (ps[0].turns <= ps[1].turns ? "동점이지만 턴 수 기준으로 내가 승리했습니다." : "동점이지만 턴 수 기준으로 컴퓨터가 승리했습니다.")
-    : (s0 > s1 ? "내가 컴퓨터보다 높은 점수로 승리했습니다." : "컴퓨터가 더 높은 점수로 승리했습니다.");
+  const {sentence} = matchOutcome(ps, s0, s1);
   // the title ("승리!" etc.) is already shown in #endTitle above this, so it isn't repeated here
-  return `<div class="result-summary"><span>내 점수 ${s0}점 · 컴퓨터 ${s1}점</span><p>${winner}</p><small>종료 조건: ${reason}</small></div><div class="result-board">${resultPlayerHtml(ps[0])}${resultPlayerHtml(ps[1])}</div>`;
+  return `<div class="result-summary"><span>내 점수 ${s0}점 · 컴퓨터 ${s1}점</span><p>${sentence}</p><small>종료 조건: ${reason}</small></div><div class="result-board">${resultPlayerHtml(ps[0])}${resultPlayerHtml(ps[1])}</div>`;
 }
 function checkEnd() {
   const mode = modes[state.mode];
@@ -636,8 +651,8 @@ function checkEnd() {
 }
 function endGame() {
   const ps = state.players, s0 = score(ps[0]), s1 = score(ps[1]);
-  let title = s0 > s1 ? "승리!" : s0 < s1 ? "패배" : ps[0].turns <= ps[1].turns ? "동점 승리" : "동점 패배";
-  window.CNationAudio?.playResult?.();
+  const {outcome, title} = matchOutcome(ps, s0, s1);
+  window.CNationAudio?.playResult?.(outcome);
   $("endTitle").textContent = title;
   $("endText").innerHTML = resultSummaryHtml(ps, s0, s1);
   $("restartBtn").textContent = "확인";

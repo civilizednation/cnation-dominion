@@ -22,6 +22,10 @@
     ["09_chaos_01.mp3", "09_chaos_02.mp3"],
     ["10_feast_01.mp3", "10_feast_02.mp3"]
   ];
+  // "draw" reuses the win track by default — a true tie is rare and doesn't clearly read as
+  // either outcome, so it isn't worth requiring a third audio file.
+  const RESULT_BGM = {win: "result.mp3", lose: "result-lose.mp3", draw: "result.mp3"};
+  const RESULT_PRELOAD = ["result.mp3", "result-lose.mp3"];
 
   const DEFAULT_BGM_VOLUME = 0.25;
   const DEFAULT_SFX_VOLUME = 1;
@@ -123,7 +127,7 @@
       nextPlayer.volume = 0;
       try { nextPlayer.load(); } catch {}
     }
-    preloadBgmFiles([currentPlaylist[nextIndex], "result.mp3"]);
+    preloadBgmFiles([currentPlaylist[nextIndex], ...RESULT_PRELOAD]);
   }
 
   function nextPlaylistIndex() {
@@ -251,7 +255,7 @@
   async function setPlaylist(mode, files, restartFromFirst = false) {
     const list = files.filter(Boolean);
     if (!list.length) return;
-    preloadBgmFiles([...list, "result.mp3"]);
+    preloadBgmFiles([...list, ...RESULT_PRELOAD]);
     const same = currentMode === mode && currentPlaylist.join("|") === list.join("|");
     currentMode = mode;
     currentPlaylist = list;
@@ -362,12 +366,12 @@
   };
 
   function playTitle() {
-    preloadBgmFiles(["title.mp3", "result.mp3"]);
+    preloadBgmFiles(["title.mp3", ...RESULT_PRELOAD]);
     return setPlaylist("title", ["title.mp3"], false);
   }
 
   function playKingdom(presetIndex = 0, restartFromFirst = false) {
-    preloadBgmFiles([...(KINGDOM_BGM[presetIndex] || KINGDOM_BGM[0]), "result.mp3"]);
+    preloadBgmFiles([...(KINGDOM_BGM[presetIndex] || KINGDOM_BGM[0]), ...RESULT_PRELOAD]);
     return setPlaylist(`kingdom-${presetIndex}`, KINGDOM_BGM[presetIndex] || KINGDOM_BGM[0], restartFromFirst);
   }
 
@@ -379,13 +383,15 @@
   }
 
   function playGuide() {
-    preloadBgmFiles(["guide.mp3", "result.mp3"]);
+    preloadBgmFiles(["guide.mp3", ...RESULT_PRELOAD]);
     return setPlaylist("guide", ["guide.mp3"], false);
   }
 
-  async function playResult() {
+  // outcome: "win" | "lose" | "draw" — picks which result track to play (see RESULT_BGM).
+  async function playResult(outcome = "win") {
+    const file = RESULT_BGM[outcome] || RESULT_BGM.win;
     currentMode = "result";
-    currentPlaylist = ["result.mp3"];
+    currentPlaylist = [file];
     cancelTimers();
     players.forEach(player => {
       player.loop = false;
@@ -395,7 +401,7 @@
     });
     if (!unlocked || bgmMuted || !visible) return;
     const player = players[activePlayer];
-    player.src = bgmUrl("result.mp3");
+    player.src = bgmUrl(file);
     player.loop = false;
     player.currentTime = 0;
     player.volume = targetBgmVolume();
@@ -494,7 +500,7 @@
     initialized = true;
     getAudioContext();
     loadSfx();
-    preloadBgmFiles(["title.mp3", "result.mp3"]);
+    preloadBgmFiles(["title.mp3", ...RESULT_PRELOAD]);
     bindUnlockEvents();
     if (document.getElementById("titleScreen")?.classList.contains("active")) {
       playTitle();
