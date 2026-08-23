@@ -47,10 +47,14 @@ const presets = [
   ["혼돈의 마법","손패 압박과 감점 부여로 상대의 전략을 방해하는 덱","마녀, 첩자, 민병대, 지하옥, 해자, 마을, 도서관, 축제, 대장장이, 예배당"],
   ["귀족의 연회","고비용 카드를 대량 수급하며 깔끔하게 덱을 경영하는 덱","연회, 광산, 의회의사당, 실험실, 도서관, 시장, 알현실, 축제, 마을, 개조"]
 ].map(([title,desc,list])=>({title,desc,ids:list.split(",").map(s=>nameToId[s.trim()]).filter(Boolean)}));
+// end conditions are based on the 3 victory-point piles (province/duchy/estate) only:
+// - trigger: any one of these empty ends the game immediately
+// - anyOf/anyOfCount: the game ends once this many of these piles are empty
+// - allOf: the game ends only once every one of these piles is empty
 const modes = {
-  original:{label:"오리지널",desc:"속령 고갈 또는 3종류 고갈",empty:3,provinceEnds:true,province:8},
-  speed:{label:"스피드",desc:"속령 고갈 또는 2종류 고갈",empty:2,provinceEnds:true,province:6},
-  long:{label:"롱게임",desc:"4종류 고갈까지 장기전",empty:4,provinceEnds:false,province:8}
+  original:{label:"오리지널",desc:"속령 고갈 또는 승점 카드 2종류 고갈",trigger:["province"],anyOf:["province","duchy","estate"],anyOfCount:2,province:8},
+  speed:{label:"스피드",desc:"속령 또는 공작령 고갈",trigger:["province","duchy"],province:6},
+  long:{label:"롱게임",desc:"승점 카드 3종류 모두 고갈",allOf:["province","duchy","estate"],province:8}
 };
 const diffs = {
   easy:{label:"하",desc:"기본 구매 위주"},
@@ -577,8 +581,10 @@ function resultSummaryHtml(ps, s0, s1, title) {
 }
 function checkEnd() {
   const mode = modes[state.mode];
-  const empty = Object.values(state.supply).filter(v=>v<=0).length;
-  return (mode.provinceEnds && state.supply.province <= 0) || empty >= mode.empty;
+  if ((mode.trigger || []).some(id => state.supply[id] <= 0)) return true;
+  if (mode.allOf && mode.allOf.every(id => state.supply[id] <= 0)) return true;
+  if (mode.anyOf && mode.anyOf.filter(id => state.supply[id] <= 0).length >= mode.anyOfCount) return true;
+  return false;
 }
 function endGame() {
   const ps = state.players, s0 = score(ps[0]), s1 = score(ps[1]);
