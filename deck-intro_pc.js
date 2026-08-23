@@ -178,13 +178,22 @@
     document.getElementById("deckIntroBackBtn").onclick = hide;
   }
 
-  function show() {
+  async function show() {
     if (typeof sound === "function") sound("click");
-    window.CNationAudio?.playKingdom?.(selectedPreset, true);
     const title = document.getElementById("titleScreen");
     titleScroll = title.scrollTop;
-    render();
     title.classList.remove("active");
+    const loading = document.getElementById("loadingScreen");
+    loading?.classList.add("active");
+
+    const preset = presets[selectedPreset];
+    const imagesReady = typeof preloadImages === "function" ? preloadImages(preset.ids) : Promise.resolve();
+    const audioReady = window.CNationAudio?.preloadKingdomReady?.(selectedPreset) ?? Promise.resolve();
+    await Promise.all([imagesReady, audioReady]);
+
+    window.CNationAudio?.playKingdom?.(selectedPreset, true);
+    render();
+    loading?.classList.remove("active");
     const screen = document.getElementById("deckIntroScreen");
     screen.classList.add("active");
     screen.scrollTop = 0;

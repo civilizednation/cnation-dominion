@@ -60,7 +60,6 @@ const diffs = {
 };
 let selectedPreset = 0, selectedDiff = "normal", selectedMode = "original";
 let uid = 1, state = null, awaiting = false, selectedTreasures = new Set();
-let preloadPromise = null;
 let audioCtx = null;
 
 const $ = id => document.getElementById(id);
@@ -108,15 +107,14 @@ function sound(kind="click") {
     }
   } catch {}
 }
-function preloadCardImages() {
-  if (preloadPromise) return preloadPromise;
-  const urls = [...new Set(Object.values(cards).map(c=>IMG + c.img))];
-  preloadPromise = Promise.allSettled(urls.map(src => new Promise(resolve => {
+const BASE_CARD_IDS = ["copper","silver","gold","estate","duchy","province","curse"];
+function preloadImages(ids) {
+  const urls = [...new Set(ids.map(id => IMG + cards[id].img))];
+  return Promise.allSettled(urls.map(src => new Promise(resolve => {
     const img = new Image();
     img.onload = img.onerror = resolve;
     img.src = src;
   })));
-  return preloadPromise;
 }
 
 function initChoices() {
@@ -156,17 +154,24 @@ function newPlayer(name, ai=false) {
 }
 
 async function startGame() {
-  window.CNationAudio?.playKingdom?.(selectedPreset, true);
-  /* 본게임 화면을 먼저 시작하고 카드 이미지는 뒤에서 불러온다. */
-  preloadCardImages();
+  const presetIds = presets[selectedPreset].ids;
+  $("titleScreen").classList.remove("active");
+  $("loadingScreen").classList.add("active");
+  // wait for this game's card art + its kingdom's first BGM track before showing the board, so
+  // slow connections don't see cards pop in one by one mid-game
+  const imagesReady = preloadImages([...BASE_CARD_IDS, ...presetIds]);
+  const audioReady = window.CNationAudio?.preloadKingdomReady?.(selectedPreset) ?? Promise.resolve();
+  await Promise.all([imagesReady, audioReady]);
+
   uid = 1;
   selectedTreasures.clear();
   const mode = modes[selectedMode];
   const supply = {copper:46, silver:40, gold:30, estate:8, duchy:8, province:mode.province, curse:10};
-  for (const id of presets[selectedPreset].ids) supply[id] = cards[id].type === "victory" ? 8 : 10;
+  for (const id of presetIds) supply[id] = cards[id].type === "victory" ? 8 : 10;
   state = {mode:selectedMode, diff:selectedDiff, preset:selectedPreset, phase:"action", current:0, players:[newPlayer("나"), newPlayer("컴퓨터", true)], supply, log:[]};
   log(`${presets[selectedPreset].title} 조합으로 시작합니다.`);
-  $("titleScreen").classList.remove("active");
+  window.CNationAudio?.playKingdom?.(selectedPreset, true);
+  $("loadingScreen").classList.remove("active");
   $("gameScreen").classList.add("active");
   render();
 }

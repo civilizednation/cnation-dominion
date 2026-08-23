@@ -371,6 +371,38 @@
     return setPlaylist(`kingdom-${presetIndex}`, KINGDOM_BGM[presetIndex] || KINGDOM_BGM[0], restartFromFirst);
   }
 
+  // resolves once the kingdom's first track has buffered enough to play smoothly (or after
+  // timeoutMs on a slow/broken connection, so a loading screen waiting on this never hangs
+  // forever). Only the first track matters here — the second is preloaded later, well before
+  // it's needed, via prepareNextTrack() during actual playback.
+  function preloadKingdomReady(presetIndex = 0, timeoutMs = 12000) {
+    const file = (KINGDOM_BGM[presetIndex] || KINGDOM_BGM[0])[0];
+    const url = bgmUrl(file);
+    let audio = bgmPreloads.get(url);
+    if (!audio) {
+      audio = new Audio();
+      audio.preload = "auto";
+      audio.crossOrigin = "anonymous";
+      audio.src = url;
+      bgmPreloads.set(url, audio);
+      try { audio.load(); } catch {}
+    }
+    const ready = new Promise(resolve => {
+      if (audio.readyState >= 3) return resolve();
+      const done = () => {
+        audio.removeEventListener("canplaythrough", done);
+        audio.removeEventListener("loadeddata", done);
+        audio.removeEventListener("error", done);
+        resolve();
+      };
+      audio.addEventListener("canplaythrough", done, {once: true});
+      audio.addEventListener("loadeddata", done, {once: true});
+      audio.addEventListener("error", done, {once: true});
+    });
+    const timeout = new Promise(resolve => setTimeout(resolve, timeoutMs));
+    return Promise.race([ready, timeout]);
+  }
+
   function playGuide() {
     preloadBgmFiles(["guide.mp3", "result.mp3"]);
     return setPlaylist("guide", ["guide.mp3"], false);
@@ -511,6 +543,7 @@
     unlock,
     playTitle,
     playKingdom,
+    preloadKingdomReady,
     playGuide,
     playResult,
     playSfx,
