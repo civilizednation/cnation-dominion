@@ -273,7 +273,9 @@ async function onSupply(id) {
   if (p.coins < cd.cost) return sound("warning"), log("재화가 부족합니다."), render();
   sound("buy");
   p.coins -= cd.cost; p.buys--; discardSelectedTreasures(p); gain(p, id); render();
-  if (checkEnd()) endGame();
+  // per the official rule the game ends at the END of the current turn (checked in endTurn's
+  // cleanup, not here) — ending it the instant a pile empties would cut the buying player's own
+  // turn short and deny them any remaining buys/actions they still had.
 }
 function playTreasure(p, i) {
   const [c] = p.hand.splice(i,1);
@@ -367,12 +369,15 @@ async function mineEffect(p, human) {
   if (!treasures.length) return;
   const idx = human ? await chooseHandIndex("폐기할 재화 카드 선택", p, treasures) : treasures[0];
   const [old] = p.hand.splice(idx,1);
-  const ids = ["copper","silver","gold"].filter(id=>state.supply[id]>0 && cards[id].cost <= cards[old.id].cost + 3 && cards[id].cost > cards[old.id].cost);
+  // official rule only caps the gain at +3 cost; it has no lower bound, so trashing a Gold must
+  // still be able to regain a Gold instead of leaving the player with nothing
+  const ids = ["copper","silver","gold"].filter(id=>state.supply[id]>0 && cards[id].cost <= cards[old.id].cost + 3);
   const gainId = human ? await chooseSupply("손으로 가져올 재화 선택", ids) : ids.at(-1);
   if (gainId && state.supply[gainId]>0) { state.supply[gainId]--; p.hand.push(make(gainId)); log(`${p.name}: ${cards[gainId].name} 손으로 획득`); }
 }
 async function spyEffect(p) {
   for (const target of state.players) {
+    if (target !== p && hasMoat(target)) { log(`${target.name}: 해자로 방어`); continue; }
     if (!target.deck.length) target.deck = shuffle(target.discard.splice(0));
     const top = target.deck.pop(); if (!top) continue;
     const discard = p.ai ? aiSpyDiscard(top) : await confirmPick(`${target.name}의 ${cards[top.id].name}: 버릴까요?`);
