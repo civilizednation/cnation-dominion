@@ -55,7 +55,8 @@ const modes = {
 const diffs = {
   easy:{label:"하",desc:"기본 구매 위주"},
   normal:{label:"중",desc:"점수와 재화 균형"},
-  hard:{label:"상",desc:"엔진과 공격 우선"}
+  hard:{label:"상",desc:"엔진과 공격 우선"},
+  extreme:{label:"최상",desc:"최적화된 엔진과 저주 러시"}
 };
 let selectedPreset = 0, selectedDiff = "normal", selectedMode = "original";
 let uid = 1, state = null, awaiting = false, selectedTreasures = new Set();
@@ -436,30 +437,72 @@ async function aiTurn() {
   await endTurn();
 }
 
+const ACTION_ORDER = {
+  easy: ["smithy","market","village","woodcutter","laboratory","council","moat"],
+  normal: ["village","laboratory","market","festival","smithy","witch","militia","moneylender","mine","workshop","council","library","woodcutter","chapel","cellar","chancellor","moat"],
+  hard: ["witch","village","festival","laboratory","market","militia","moneylender","chapel","smithy","council","mine","adventurer","workshop","remodel","library","cellar","chancellor","thief","spy","throne","moat","woodcutter","feast"],
+  extreme: ["witch","chapel","village","festival","laboratory","market","militia","moneylender","smithy","council","mine","workshop","remodel","adventurer","library","cellar","chancellor","throne","thief","spy","moat","woodcutter","feast"]
+};
+// net change in remaining actions from playing the card (draw/coin effects ignored); anything not
+// listed is a terminal (-1). "상"/"최상" use this to always chain village/lab-type cards before
+// spending their last action on a terminal, instead of scanning a single fixed priority order.
+const ACTION_NET_GAIN = {village:1, festival:1, laboratory:0, market:0, cellar:0, spy:0};
 function aiActionIndex(p) {
-  const order = state.diff === "hard"
-    ? ["village","festival","laboratory","market","chapel","moneylender","witch","militia","smithy","council","mine","adventurer","workshop","remodel","library","cellar","chancellor","thief","spy","moat","woodcutter","feast","throne"]
-    : state.diff === "normal"
-    ? ["village","laboratory","market","festival","smithy","witch","militia","moneylender","mine","workshop","council","library","woodcutter","chapel","cellar","chancellor","moat"]
-    : ["smithy","market","village","woodcutter","laboratory","council","moat"];
-  for (const id of order) { const i = p.hand.findIndex(c=>c.id===id); if (i>=0) return i; }
-  return -1;
+  const order = ACTION_ORDER[state.diff] || ACTION_ORDER.normal;
+  const playable = order.map(id => p.hand.findIndex(c=>c.id===id)).filter(i=>i>=0);
+  if (!playable.length) return -1;
+  if (state.diff !== "hard" && state.diff !== "extreme") return playable[0];
+  return playable.slice().sort((a,b) => {
+    const netA = ACTION_NET_GAIN[p.hand[a].id] ?? -1, netB = ACTION_NET_GAIN[p.hand[b].id] ?? -1;
+    return netB - netA || order.indexOf(p.hand[a].id) - order.indexOf(p.hand[b].id);
+  })[0];
+}
+// how many cards a deck must reach before the AI starts buying duchy (outside the guaranteed
+// province grab below); "하" greens almost immediately, "최상" holds off until the province pile
+// itself is running low, keeping its engine bigger for longer.
+const GREEN_AT = {easy:14, normal:24, hard:23, extreme:Infinity};
+function aiBuyPriorities(diffId) {
+  const preset = presets[state.preset].ids;
+  if (diffId === "easy") return ["duchy","estate","gold","silver",...preset];
+  if (diffId === "normal") return ["gold","witch","laboratory","market","festival","council","mine","silver","village","smithy","duchy","gardens","estate",...preset];
+  if (diffId === "hard") return ["gold","witch","laboratory","market","festival","council","mine","silver","village","smithy","chapel","moneylender","militia","duchy","gardens","estate",...preset];
+  return ["chapel","gold","witch","laboratory","market","festival","council","mine","silver","village","smithy","moneylender","militia","duchy","gardens","estate",...preset];
+}
+// caps how many of a one-shot/utility action the AI will pick up before it falls through to the
+// next priority; without this a cheap card ranked ahead of silver (e.g. chapel at cost 2) gets
+// bought on repeat instead of ever building an economy. Treasures/victory cards stay uncapped.
+const BUY_CAP = {chapel:1, moneylender:2, witch:2, workshop:1, mine:1, remodel:1, feast:1, throne:1, adventurer:1, secret:1, chancellor:1, thief:1, spy:1, militia:2, village:4, festival:3, laboratory:3, market:4, smithy:3, council:2, library:2, cellar:1, woodcutter:2, moat:2};
+// "상"/"최상" push past "중"'s cap on curses, chasing a bigger curse-attack lead.
+function buyCap(diffId, id) {
+  if (id === "witch" && (diffId === "extreme" || diffId === "hard")) return 4;
+  return BUY_CAP[id];
 }
 function aiBuyPick(p, maxCost, pool=Object.keys(state.supply)) {
-  const total = allCards(p).length;
-  const priorities = state.diff === "easy"
-    ? ["province","gold","duchy","silver","estate",...presets[state.preset].ids]
-    : ["province","gold","witch","laboratory","market","festival","council","mine","duchy","silver","village","smithy","gardens","estate",...presets[state.preset].ids];
   if (maxCost >= 8 && state.supply.province) return "province";
-  if (total > 28 && maxCost >= 5 && state.supply.duchy) return "duchy";
-  for (const id of priorities) if (pool.includes(id) && state.supply[id] > 0 && cards[id].cost <= maxCost) return id;
+  const diffId = state.diff, total = allCards(p).length;
+  const provinceLow = diffId === "extreme" && state.supply.province <= 4;
+  if ((total > (GREEN_AT[diffId] ?? 24) || provinceLow) && maxCost >= 5 && state.supply.duchy) return "duchy";
+  const priorities = aiBuyPriorities(diffId);
+  for (const id of priorities) {
+    if (!pool.includes(id) || !(state.supply[id] > 0) || cards[id].cost > maxCost) continue;
+    const cap = buyCap(diffId, id);
+    if (cap != null && allCards(p).filter(c=>c.id===id).length >= cap) continue;
+    return id;
+  }
   return null;
 }
 function aiChooseDiscards(p, count) {
   const value = c => ({curse:0, estate:1, duchy:1, province:1, copper:2, cellar:2, moat:2, silver:3, gold:5}[c.id] ?? 3);
   return [...p.hand].sort((a,b)=>value(a)-value(b)).slice(0,count).map(c=>c.uid);
 }
-function aiChapelTrash(p) { return p.hand.filter(c=>["curse","estate","copper"].includes(c.id)).slice(0,4).map(c=>c.uid); }
+function aiChapelTrash(p) {
+  const junk = p.hand.filter(c=>["curse","estate","copper"].includes(c.id));
+  if (state.diff !== "hard" && state.diff !== "extreme") return junk.slice(0,4).map(c=>c.uid);
+  // keep a small copper buffer so trashing doesn't stall early-game coins, but trim harder than easy/normal
+  const minCoppers = state.diff === "extreme" ? 2 : 3;
+  const coppersOwned = allCards(p).filter(c=>c.id==="copper").length;
+  return junk.filter(c=>c.id!=="copper" || coppersOwned > minCoppers).slice(0,4).map(c=>c.uid);
+}
 function aiRemodelTrash(p) { const c = p.hand.find(c=>["curse","estate","copper"].includes(c.id)) || p.hand[0]; return c?.uid; }
 function aiSpyDiscard(c) { return ["curse","estate","copper"].includes(c.id); }
 

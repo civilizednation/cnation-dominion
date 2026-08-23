@@ -17,6 +17,7 @@
     .title p { margin: 3px 0 0; color: #dfcda9; }
     .panel { background: #352317; border: 1px solid #6f563b; border-radius: 8px; padding: 8px 10px; }
     .option-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .diff-grid { grid-template-columns: repeat(4, 1fr); }
     .deck-grid { display: grid; grid-template-columns: 1fr; gap: 4px; }
     .choice { min-height: 38px; padding: 6px 8px; border-radius: 8px; background: #4a3322; border: 2px solid transparent; text-align: left; overflow: hidden; }
     .choice strong { display: block; font-size: 14px; line-height: 1.15; }
@@ -208,7 +209,7 @@
       </div>
       <div class="panel">
         <strong>컴퓨터 난이도</strong>
-        <div id="difficultyChoices" class="option-grid" style="margin-top:10px"></div>
+        <div id="difficultyChoices" class="option-grid diff-grid" style="margin-top:10px"></div>
       </div>
       <div class="panel">
         <strong>승패 조건</strong>
