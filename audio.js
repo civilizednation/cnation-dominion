@@ -26,6 +26,8 @@
   // either outcome, so it isn't worth requiring a third audio file.
   const RESULT_BGM = {win: "result.mp3", lose: "result-lose.mp3", draw: "result.mp3"};
   const RESULT_PRELOAD = ["result.mp3", "result-lose.mp3"];
+  // the lose track was mixed quieter than the others and was hard to hear at normal BGM levels
+  const RESULT_VOLUME_MULTIPLIER = {lose: 1.3};
 
   const DEFAULT_BGM_VOLUME = 0.25;
   const DEFAULT_SFX_VOLUME = 1;
@@ -390,6 +392,7 @@
   // outcome: "win" | "lose" | "draw" — picks which result track to play (see RESULT_BGM).
   async function playResult(outcome = "win") {
     const file = RESULT_BGM[outcome] || RESULT_BGM.win;
+    const volumeMultiplier = RESULT_VOLUME_MULTIPLIER[outcome] || 1;
     currentMode = "result";
     currentPlaylist = [file];
     cancelTimers();
@@ -404,7 +407,7 @@
     player.src = bgmUrl(file);
     player.loop = false;
     player.currentTime = 0;
-    player.volume = targetBgmVolume();
+    player.volume = Math.min(1, targetBgmVolume() * volumeMultiplier);
     try {
       await player.play();
     } catch (error) {
