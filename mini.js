@@ -456,6 +456,41 @@
     if (status && actions && actions.parentElement !== status) status.appendChild(actions);
   }
 
+  // 주소창/하단 툴바 때문에 실제로 보이는 화면 높이가 줄어드는 브라우저 탭 환경에서도
+  // 미니게임 전체(공급처 맨 아래 "내 덱"까지)가 스크롤 없이 한 화면에 들어오도록,
+  // 내용이 화면보다 크면 비율을 유지한 채 축소한다.
+  let fitObserver = null;
+  let fitRaf = null;
+
+  function fitToViewport() {
+    const game = document.querySelector(".app.mini-mode .game");
+    if (!game) return;
+    game.style.transform = "none";
+    const available = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const natural = game.scrollHeight;
+    const scale = natural > available ? Math.max(available / natural, 0.72) : 1;
+    game.style.transformOrigin = "top center";
+    game.style.transform = scale < 1 ? `scale(${scale})` : "none";
+  }
+
+  function scheduleFit() {
+    if (fitRaf) cancelAnimationFrame(fitRaf);
+    fitRaf = requestAnimationFrame(fitToViewport);
+  }
+
+  function watchViewportFit() {
+    scheduleFit();
+    if (fitObserver) return;
+    const game = document.querySelector(".app.mini-mode .game");
+    if (game) {
+      fitObserver = new MutationObserver(scheduleFit);
+      fitObserver.observe(game, {childList: true, subtree: true});
+    }
+    window.addEventListener("resize", scheduleFit);
+    window.addEventListener("orientationchange", scheduleFit);
+    window.visualViewport?.addEventListener("resize", scheduleFit);
+  }
+
   window.CNationMini = {
     enabled: false,
 
@@ -466,6 +501,7 @@
       document.querySelector(".app")?.classList.add("mini-mode");
       arrangeMiniControls();
       watchTopArea();
+      watchViewportFit();
     },
 
     handHtml(c, index, human) {
