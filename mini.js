@@ -196,10 +196,13 @@
         grid-template-columns: repeat(5, minmax(0, 1fr));
         grid-auto-rows: var(--mini-equal-card-height);
         gap: 4px;
-        /* only tall enough for one full row; a 6th+ card's row is clipped down to a
-           peeking sliver so it's clear more cards are held without pushing the layout */
+        /* only tall enough for one full row by default; a 6th+ card's row peeks in as
+           a sliver to hint there's more, and can be scrolled into view/tapped since
+           the rest of the game screen is already scaled to fit in one view */
         max-height: calc(var(--mini-equal-card-height) * 1.22 + 4px);
-        overflow: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
         align-content: start;
       }
       .app.mini-mode .mini-card,
