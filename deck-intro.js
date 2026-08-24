@@ -189,7 +189,8 @@
 
     const preset = presets[selectedPreset];
     const imageUrls = typeof cardImageUrls === "function" ? cardImageUrls(preset.ids) : [];
-    const bgmTrackUrl = window.CNationAudio?.kingdomFirstTrackUrl?.(selectedPreset);
+    const bgmMuted = window.CNationAudio?.getSettings?.()?.bgmMuted;
+    const bgmTrackUrl = bgmMuted ? null : window.CNationAudio?.kingdomFirstTrackUrl?.(selectedPreset);
     if (typeof preloadWithProgress === "function") {
       await preloadWithProgress([...imageUrls, ...(bgmTrackUrl ? [bgmTrackUrl] : [])], setLoadingProgress);
     }

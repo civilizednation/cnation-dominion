@@ -227,9 +227,11 @@ async function startGame() {
   $("loadingScreen").classList.add("active");
   setLoadingProgress(0);
   // wait for this game's card art + its kingdom's first BGM track before showing the board, so
-  // slow connections don't see cards pop in one by one mid-game
+  // slow connections don't see cards pop in one by one mid-game — skip the BGM download entirely
+  // if music is muted, since nothing would play it anyway
   const imageUrls = window.CNationMini?.enabled ? [] : cardImageUrls([...BASE_CARD_IDS, ...presetIds]);
-  const bgmTrackUrl = window.CNationAudio?.kingdomFirstTrackUrl?.(selectedPreset);
+  const bgmMuted = window.CNationAudio?.getSettings?.()?.bgmMuted;
+  const bgmTrackUrl = bgmMuted ? null : window.CNationAudio?.kingdomFirstTrackUrl?.(selectedPreset);
   await preloadWithProgress([...imageUrls, ...(bgmTrackUrl ? [bgmTrackUrl] : [])], setLoadingProgress);
 
   uid = 1;
