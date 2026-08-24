@@ -712,13 +712,14 @@ async function enterFullscreen() {
 }
 
 $("startBtn").onclick = async () => {
+  const fullscreenRequest = enterFullscreen();
   sound("confirm");
   await window.CNationAudio?.unlock?.();
   const button = $("startBtn");
   button.disabled = true;
 
   try {
-    await enterFullscreen();
+    await fullscreenRequest;
     await startGame();
   } catch (error) {
     console.error(error);

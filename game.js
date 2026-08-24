@@ -710,13 +710,14 @@ async function enterFullscreen() {
 }
 
 $("startBtn").onclick = async () => {
+  const fullscreenRequest = enterFullscreen();
   sound("confirm");
   await window.CNationAudio?.unlock?.();
   const button = $("startBtn");
   button.disabled = true;
 
   try {
-    await enterFullscreen();
+    await fullscreenRequest;
     await startGame();
   } catch (error) {
     console.error(error);
@@ -727,6 +728,7 @@ $("startBtn").onclick = async () => {
   }
 };
 $("miniStartBtn").onclick = async () => {
+  const fullscreenRequest = enterFullscreen();
   sound("confirm");
   await window.CNationAudio?.unlock?.();
   const button = $("miniStartBtn");
@@ -735,7 +737,7 @@ $("miniStartBtn").onclick = async () => {
   button.disabled = true;
   button.textContent = "불러오는 중...";
   try {
-    await enterFullscreen();
+    await fullscreenRequest;
     const mini = await loadMiniScript();
     if (!mini) throw new Error("mini.js 초기화에 실패했습니다.");
     mini.enable();
