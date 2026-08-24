@@ -138,7 +138,7 @@
         --mini-action: #2f5f83;
         --mini-attack: #833c35;
         --mini-reaction: #276b69;
-        --mini-equal-card-height: clamp(104px, 28vw, 116px);
+        --mini-equal-card-height: calc(clamp(104px, 28vw, 116px) * 0.9);
       }
       .app.mini-mode .game { height: 100%; }
       .app.mini-mode .game .center { flex: 1 0 auto; min-height: 0; padding: 6px; }
@@ -165,17 +165,38 @@
         overflow: visible;
         padding-bottom: 2px;
       }
-      .app.mini-mode .status { min-height: 78px; margin-top: 6px; grid-template-columns: minmax(0, 1fr) 82px; gap: 5px; }
-      .app.mini-mode .message { padding: 6px 7px; font-size: 10.5px; }
-      .app.mini-mode .actions { flex-direction: column; gap: 5px; height: 100%; min-height: 0; align-self: stretch; }
-      .app.mini-mode .action-btn { min-width: 54px; min-height: 0; flex: 1 1 0; padding: 0 5px; font-size: 9.5px; }
-      .app.mini-mode .action-btn.select-all { min-width: 86px; font-size: 8.5px; }
+      /* 17 supply cards on a 5-column grid always leave the last row's 3 right-hand
+         cells empty (7 base + 10 kingdom cards = 17 = 5+5+5+2). Float the button
+         stack over that dead space instead of growing the message box's row. */
+      .app.mini-mode .center { position: relative; }
+      .app.mini-mode .status { min-height: 78px; margin-top: 6px; grid-template-columns: 1fr; gap: 5px; }
+      .app.mini-mode .message { padding: 6px 7px; padding-right: 92px; font-size: 10.5px; }
+      .app.mini-mode .actions {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 82px;
+        height: calc(78px + 6px + var(--mini-equal-card-height));
+        flex-direction: column;
+        gap: 0;
+        z-index: 1;
+      }
+      .app.mini-mode .action-btn { min-width: 54px; min-height: 44px; flex: 0 0 44px; padding: 0 5px; font-size: 11px; }
+      /* double the gap above 재화카드 전체선택, triple the gap above 턴 종료, so an
+         intended 전체선택 tap can't slide into an accidental 턴 종료 tap */
+      .app.mini-mode .action-btn.select-all { min-width: 86px; font-size: 9.5px; margin-top: 10px; }
+      .app.mini-mode .action-btn.primary { margin-top: 15px; }
       .app.mini-mode .hand { height: auto; min-height: 44px; gap: 4px; align-items: stretch; }
       .app.mini-mode .player .hand {
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-auto-rows: var(--mini-equal-card-height);
         gap: 4px;
-        overflow: visible;
+        /* only tall enough for one full row; a 6th+ card's row is clipped down to a
+           peeking sliver so it's clear more cards are held without pushing the layout */
+        max-height: calc(var(--mini-equal-card-height) * 1.22 + 4px);
+        overflow: hidden;
+        align-content: start;
       }
       .app.mini-mode .mini-card,
       .app.mini-mode .supply-card {
@@ -412,7 +433,7 @@
         .app.mini-mode .player .hand { grid-template-columns: repeat(5, minmax(0, 1fr)); }
       }
       @media (max-width: 360px) {
-        .app.mini-mode { --mini-equal-card-height: 102px; }
+        .app.mini-mode { --mini-equal-card-height: 92px; }
         .app.mini-mode .supply-grid,
         .app.mini-mode .player .hand { gap: 3px; }
         .app.mini-mode #supplyGrid .mini-name,
