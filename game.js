@@ -297,7 +297,7 @@ function messageHtml(active) {
 }
 function statsHtml(p) {
   const total = p.deck.length + p.discard.length + p.hand.length + p.play.length;
-  return `<span class="pill">점수 ${score(p)}</span><span class="pill">액션 ${p.actions}</span><span class="pill">구입 ${p.buys}</span><span class="pill">재화 ${p.coins}</span><span class="pill">덱 ${p.deck.length}</span><span class="pill">버림 ${p.discard.length}</span><span class="pill">총 ${total}</span>`;
+  return `<span class="pill pill-score">점수 ${score(p)}</span><span class="pill">액션 ${p.actions}</span><span class="pill">구입 ${p.buys}</span><span class="pill">재화 ${p.coins}</span><span class="pill">덱 ${p.deck.length}</span><span class="pill">버림 ${p.discard.length}</span><span class="pill">총 ${total}</span>`;
 }
 function handHtml(c, i, human) {
   const cd = card(c);
