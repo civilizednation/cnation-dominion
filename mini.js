@@ -140,7 +140,11 @@
         --mini-reaction: #276b69;
         --mini-equal-card-height: calc(clamp(104px, 28vw, 116px) * 0.9);
       }
-      .app.mini-mode .game { height: 100%; }
+      /* scale-to-fit이 전체 내용을 축소할 수 있으려면, 축소 전에 내용이
+         잘리지 않고 실제 크기 그대로 그려져 있어야 한다(자르고 나서
+         줄이면 잘린 부분은 줄여도 여전히 안 보임). 바깥쪽 clip은
+         .app의 overflow:hidden이 담당한다. */
+      .app.mini-mode .game { height: auto; min-height: 100%; overflow: visible; }
       .app.mini-mode .game .center { flex: 1 0 auto; min-height: 0; padding: 6px; }
       .app.mini-mode .opponent { height: auto; min-height: 80px; padding: 5px 7px; }
       .app.mini-mode .player { min-height: 0; padding: 5px 7px max(7px, env(safe-area-inset-bottom)); }
