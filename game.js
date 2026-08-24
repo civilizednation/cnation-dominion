@@ -699,6 +699,16 @@ function openModal(title, items, min, max, resolve, cancelResolve=null, okText="
   if (!items.length && min===0) $("modalOk").onclick = () => { sound("confirm"); close([]); };
 }
 
+async function enterFullscreen() {
+  const root = document.documentElement;
+  if (document.fullscreenElement) return;
+  try {
+    if (root.requestFullscreen) await root.requestFullscreen();
+    else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    else if (root.msRequestFullscreen) root.msRequestFullscreen();
+  } catch {}
+}
+
 $("startBtn").onclick = async () => {
   sound("confirm");
   await window.CNationAudio?.unlock?.();
@@ -706,6 +716,7 @@ $("startBtn").onclick = async () => {
   button.disabled = true;
 
   try {
+    await enterFullscreen();
     await startGame();
   } catch (error) {
     console.error(error);
@@ -724,6 +735,7 @@ $("miniStartBtn").onclick = async () => {
   button.disabled = true;
   button.textContent = "불러오는 중...";
   try {
+    await enterFullscreen();
     const mini = await loadMiniScript();
     if (!mini) throw new Error("mini.js 초기화에 실패했습니다.");
     mini.enable();
