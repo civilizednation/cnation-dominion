@@ -191,8 +191,35 @@ function initChoices() {
   $("modeChoices").innerHTML = Object.entries(modes).map(([id,m])=>`<button class="choice ${id===selectedMode?"selected":""}" data-mode="${id}"><strong>${m.label}</strong><span>${m.desc}</span></button>`).join("");
   renderSoundChoices();
   document.querySelectorAll("[data-deck]").forEach(b=>b.onclick=()=>{sound("click");selectedPreset=+b.dataset.deck;initChoices();});
-  document.querySelectorAll("[data-diff]").forEach(b=>b.onclick=()=>{sound("click");selectedDiff=b.dataset.diff;initChoices();});
-  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{sound("click");selectedMode=b.dataset.mode;initChoices();});
+  document.querySelectorAll("[data-diff]").forEach(b=>b.onclick=()=>{
+    sound("click");
+    selectedDiff = b.dataset.diff;
+    if (selectedDiff === "easy") selectedMode = "speed";
+    initChoices();
+  });
+  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
+    sound("click");
+    const nextMode = b.dataset.mode;
+    if (selectedDiff === "easy" && nextMode !== "speed") { openSpeedWarn(nextMode); return; }
+    selectedMode = nextMode;
+    initChoices();
+  });
+}
+
+function openSpeedWarn(nextMode) {
+  $("speedWarnModal").classList.add("active");
+  $("speedWarnProceed").onclick = () => {
+    sound("confirm");
+    selectedMode = nextMode;
+    $("speedWarnModal").classList.remove("active");
+    initChoices();
+  };
+  $("speedWarnUseSpeed").onclick = () => {
+    sound("click");
+    selectedMode = "speed";
+    $("speedWarnModal").classList.remove("active");
+    initChoices();
+  };
 }
 
 function renderSoundChoices() {

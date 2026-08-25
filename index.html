@@ -98,6 +98,7 @@
     .modal.active { display: flex; }
     .modal-box { width: 100%; max-height: 76%; background: #2a1b12; border-top: 2px solid #d2a24a; border-radius: 16px 16px 0 0; padding: 14px; overflow: auto; }
     .modal h2 { margin: 0 0 8px; font-size: 18px; }
+    .speed-warn-text { margin: 0 0 14px; color: #e9d8b8; font-size: 13.5px; line-height: 1.6; }
     .modal .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
     .modal .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
     .modal .modal-actions button { flex: 1; height: 46px; border-radius: 8px; background: #674224; font-weight: 900; }
@@ -216,7 +217,7 @@
   <main class="app">
     <section id="titleScreen" class="screen title active">
       <div>
-        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.18</span></h1>
+        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.19</span></h1>
         <p>컴퓨터와 즐기는 1:1 도미니언 웹게임</p>
       </div>
       <div class="panel">
@@ -299,6 +300,16 @@
         <div class="modal-actions">
           <button id="modalCancel">취소</button>
           <button id="modalOk" class="ok">확인</button>
+        </div>
+      </div>
+    </div>
+    <div id="speedWarnModal" class="modal">
+      <div class="modal-box">
+        <h2>스피드 모드 권장</h2>
+        <p class="speed-warn-text">컴퓨터 난이도가 낮아서 스피드 모드가 아니면 게임이 너무 길어질 수 있습니다. 그래도 계속 진행하시겠습니까?</p>
+        <div class="modal-actions">
+          <button id="speedWarnProceed">예</button>
+          <button id="speedWarnUseSpeed" class="ok">스피드 모드로 진행</button>
         </div>
       </div>
     </div>
