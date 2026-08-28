@@ -576,9 +576,9 @@ async function aiTurn() {
 
 const ACTION_ORDER = {
   easy: ["smithy","market","village","woodcutter","laboratory","council","moat"],
-  normal: ["village","laboratory","market","festival","smithy","witch","militia","moneylender","mine","workshop","council","library","woodcutter","chapel","cellar","chancellor","moat"],
-  hard: ["witch","village","festival","laboratory","market","militia","moneylender","chapel","smithy","council","mine","adventurer","workshop","remodel","library","cellar","chancellor","thief","spy","throne","moat","woodcutter","feast"],
-  extreme: ["witch","chapel","village","festival","laboratory","market","militia","moneylender","smithy","council","mine","workshop","remodel","adventurer","library","cellar","chancellor","throne","thief","spy","moat","woodcutter","feast"]
+  normal: ["village","laboratory","market","festival","smithy","witch","militia","moneylender","mine","workshop","council","library","woodcutter","chapel","cellar","chancellor","secret","moat"],
+  hard: ["witch","village","festival","laboratory","market","militia","moneylender","chapel","smithy","council","mine","adventurer","workshop","remodel","library","cellar","chancellor","secret","thief","spy","throne","moat","woodcutter","feast"],
+  extreme: ["witch","chapel","village","festival","laboratory","market","militia","moneylender","smithy","council","mine","workshop","remodel","adventurer","library","cellar","chancellor","secret","throne","thief","spy","moat","woodcutter","feast"]
 };
 // net change in remaining actions from playing the card (draw/coin effects ignored); anything not
 // listed is a terminal (-1). "상"/"최상" use this to always chain village/lab-type cards before
