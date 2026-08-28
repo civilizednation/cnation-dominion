@@ -449,7 +449,8 @@ async function thiefEffect(p, opp) {
   let trashed = null;
   if (treasures.length) trashed = treasures.sort((a,b)=>cards[b.id].cost-cards[a.id].cost)[0];
   for (const c of revealed) { if (trashed && c.uid===trashed.uid) continue; opp.discard.push(c); }
-  if (trashed && (!p.ai || await confirmPick(`${cards[trashed.id].name}을 얻을까요?`))) p.discard.push(trashed);
+  log(`${opp.name}이(가) 공개한 카드: ${revealed.length ? revealed.map(c=>cards[c.id].name).join(", ") : "없음"}`);
+  if (trashed && (p.ai || await confirmThiefGain(revealed, trashed))) p.discard.push(trashed);
 }
 async function discardDownTo(p, n) {
   const count = Math.max(0, p.hand.length - n);
@@ -675,6 +676,26 @@ function chooseSupply(title, ids) {
 function confirmPick(title) {
   return new Promise(resolve => {
     openModal(title, [], 0, 0, () => resolve(true), () => resolve(false), "예", "아니오");
+  });
+}
+// shows the 2 revealed cards from a Thief play (which one is the trash candidate vs. which
+// gets discarded) so the human player knows the situation before deciding whether to gain it
+function confirmThiefGain(revealed, trashed) {
+  return new Promise(resolve => {
+    awaiting = true;
+    $("modalTitle").textContent = `상대가 공개한 카드 중 ${cards[trashed.id].name}(비용 ${cards[trashed.id].cost})을 폐기합니다. 획득할까요?`;
+    $("modalCards").innerHTML = revealed.map(c => {
+      const isTrashed = c.uid === trashed.uid;
+      const cardHtml = window.CNationMini?.enabled
+        ? window.CNationMini.modalCardHtml(c)
+        : `<button type="button" class="supply-card" tabindex="-1"><img src="${IMG+cards[c.id].img}" alt="${cards[c.id].name}"><span class="badge">${cards[c.id].cost}</span><span class="name">${cards[c.id].name}</span></button>`;
+      return `<div class="thief-reveal-item">${cardHtml}<span class="thief-reveal-tag ${isTrashed ? "trash" : "discard"}">${isTrashed ? "폐기 후보" : "버려짐"}</span></div>`;
+    }).join("");
+    $("modalOk").textContent = "예"; $("modalCancel").textContent = "아니오";
+    $("modal").classList.add("active");
+    const close = val => { $("modal").classList.remove("active"); awaiting = false; render(); resolve(val); };
+    $("modalOk").onclick = () => { sound("confirm"); close(true); };
+    $("modalCancel").onclick = () => { sound("click"); close(false); };
   });
 }
 function openModal(title, items, min, max, resolve, cancelResolve=null, okText="확인", cancelText="취소") {

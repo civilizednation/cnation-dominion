@@ -92,6 +92,11 @@
     .modal-box { width: 100%; max-height: 76%; background: #2a1b12; border-top: 2px solid #d2a24a; border-radius: 16px 16px 0 0; padding: 14px; overflow: auto; }
     .modal h2 { margin: 0 0 8px; font-size: 18px; }
     .modal .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+    .thief-reveal-item { display: flex; flex-direction: column; gap: 4px; }
+    .thief-reveal-item .supply-card { pointer-events: none; }
+    .thief-reveal-tag { text-align: center; font-size: 10.5px; font-weight: 800; padding: 3px 4px; border-radius: 6px; }
+    .thief-reveal-tag.trash { background: #5f2a22; color: #ffb9a8; border: 1px solid #a8493a; }
+    .thief-reveal-tag.discard { background: #3a281c; color: #d7c09a; border: 1px solid #6a5035; }
     .modal .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
     .modal .modal-actions button { flex: 1; height: 46px; border-radius: 8px; background: #674224; font-weight: 900; }
     .modal .modal-actions .ok { background: #d7a93f; color: #25180f; }
@@ -209,7 +214,7 @@
   <main class="app">
     <section id="titleScreen" class="screen title active">
       <div>
-        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.18</span></h1>
+        <h1>cnation DOMINION (도미니언) <span class="title-version">Version 1.1.19</span></h1>
         <p>컴퓨터와 즐기는 1:1 도미니언 웹게임</p>
       </div>
       <div class="panel">
