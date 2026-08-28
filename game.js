@@ -427,7 +427,7 @@ async function resolveAction(p, id) {
   if (id==="smithy") draw(p,3);
   if (id==="spy") { draw(p,1); p.actions++; await spyEffect(p); }
   if (id==="thief") await thiefEffect(p, opp);
-  if (id==="throne") { const acts = p.hand.map((c,i)=>cards[c.id].type.includes("action") ? i : -1).filter(i=>i>=0); if (acts.length) { const idx = human ? await chooseHandIndex("두 번 사용할 액션 카드 선택", p, acts) : acts[0]; const [target] = p.hand.splice(idx,1); p.play.push(target); await resolveAction(p, target.id); await resolveAction(p, target.id); } }
+  if (id==="throne") { const acts = p.hand.map((c,i)=>cards[c.id].type.includes("action") ? i : -1).filter(i=>i>=0); if (acts.length) { const idx = human ? await chooseHandIndex("두 번 사용할 액션 카드 선택", p, acts) : acts[0]; if (idx >= 0) { const [target] = p.hand.splice(idx,1); p.play.push(target); await resolveAction(p, target.id); await resolveAction(p, target.id); } } }
   if (id==="militia") { p.coins += 2; if (!hasMoat(opp)) await discardDownTo(opp, 3); else log(`${opp.name}: 해자로 방어`); }
   if (id==="council") { draw(p,4); p.buys++; draw(opp,1); }
   if (id==="festival") { p.actions += 2; p.buys++; p.coins += 2; }
@@ -453,6 +453,7 @@ async function mineEffect(p, human) {
   const treasures = p.hand.map((c,i)=>cards[c.id].type==="treasure"?i:-1).filter(i=>i>=0);
   if (!treasures.length) return;
   const idx = human ? await chooseHandIndex("폐기할 재화 카드 선택", p, treasures) : treasures[0];
+  if (idx < 0) return;
   const [old] = p.hand.splice(idx,1);
   // official rule only caps the gain at +3 cost; it has no lower bound, so trashing a Gold must
   // still be able to regain a Gold instead of leaving the player with nothing
