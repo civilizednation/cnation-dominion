@@ -425,17 +425,23 @@ async function resolveAction(p, id) {
   if (id==="moneylender") { const copper = p.hand.find(c=>c.id==="copper"); if (copper && (!human || await confirmPick("동 1장을 폐기하고 +3 재화를 얻을까요?"))) { trashFromHand(p, copper.uid); p.coins += 3; } }
   if (id==="remodel") { const pick = human ? (await chooseHand("폐기할 카드 1장 선택", p, 1, 1))[0] : aiRemodelTrash(p); const old = pick && trashFromHand(p, pick); if (old) await gainChoice(p, cards[old.id].cost + 2, "얻을 카드 선택"); }
   if (id==="smithy") draw(p,3);
-  if (id==="spy") { draw(p,1); p.actions++; await spyEffect(p); }
-  if (id==="thief") await thiefEffect(p, opp);
+  if (id==="spy") { draw(p,1); p.actions++; await secretChamberDefense(opp); await spyEffect(p); }
+  if (id==="thief") { await secretChamberDefense(opp); await thiefEffect(p, opp); }
   if (id==="throne") { const acts = p.hand.map((c,i)=>cards[c.id].type.includes("action") ? i : -1).filter(i=>i>=0); if (acts.length) { const idx = human ? await chooseHandIndex("두 번 사용할 액션 카드 선택", p, acts) : acts[0]; if (idx >= 0) { const [target] = p.hand.splice(idx,1); p.play.push(target); await resolveAction(p, target.id); await resolveAction(p, target.id); } } }
-  if (id==="militia") { p.coins += 2; if (!hasMoat(opp)) await discardDownTo(opp, 3); else log(`${opp.name}: 해자로 방어`); }
+  if (id==="militia") { p.coins += 2; await secretChamberDefense(opp); if (!hasMoat(opp)) await discardDownTo(opp, 3); else log(`${opp.name}: 해자로 방어`); }
   if (id==="council") { draw(p,4); p.buys++; draw(opp,1); }
   if (id==="festival") { p.actions += 2; p.buys++; p.coins += 2; }
   if (id==="laboratory") { draw(p,2); p.actions++; }
-  if (id==="library") { while (p.hand.length < 7) draw(p,1); }
+  if (id==="library") await libraryEffect(p, human);
   if (id==="market") { draw(p,1); p.actions++; p.buys++; p.coins++; }
-  if (id==="secret") { const chosen = human ? await chooseHand("버릴 카드 선택: 카드마다 +1 재화", p, 0, 99) : aiChooseDiscards(p, 2); chosen.forEach(u=>discardCard(p, trashFromHand(p,u))); p.coins += chosen.length; }
-  if (id==="witch") { draw(p,2); if (!hasMoat(opp)) gain(opp,"curse"); else log(`${opp.name}: 해자로 방어`); }
+  if (id==="secret") {
+    p.coins += 2;
+    const junkCount = p.hand.filter(c=>["curse","estate"].includes(c.id)).length;
+    const chosen = human ? await chooseHand("재화 +2 획득. 버릴 카드 선택 (버린 만큼 다시 뽑습니다)", p, 0, 99) : aiChooseDiscards(p, junkCount);
+    chosen.forEach(u=>discardCard(p, trashFromHand(p,u)));
+    draw(p, chosen.length);
+  }
+  if (id==="witch") { draw(p,2); await secretChamberDefense(opp); if (!hasMoat(opp)) gain(opp,"curse"); else log(`${opp.name}: 해자로 방어`); }
   if (id==="adventurer") { let found=0, revealed=[]; while(found<2) { if(!p.deck.length) p.deck = shuffle(p.discard.splice(0)); if(!p.deck.length) break; const c=p.deck.pop(); if(cards[c.id].type==="treasure"){p.hand.push(c);found++;} else revealed.push(c); } p.discard.push(...revealed); }
   if (id==="chancellor") { p.coins += 2; if (!human || await confirmPick("덱을 버린 카드 더미로 보낼까요?")) p.discard.push(...p.deck.splice(0)); }
   if (id==="feast") { const idx = p.play.findIndex(c=>c.id==="feast"); if (idx>=0) p.play.splice(idx,1); await gainChoice(p, 5, "얻을 카드 선택"); }
@@ -448,6 +454,37 @@ async function gainChoice(p, maxCost, title) {
   if (!ids.length) return;
   const id = p.ai ? aiBuyPick(p, maxCost, ids) : await chooseSupply(title, ids);
   if (id) gain(p, id);
+}
+// draws to 7 cards, but any Action card revealed along the way may be set aside instead of kept
+// (the AI always sets them aside); set-aside cards don't count toward the 7 and are discarded once
+// drawing stops, matching the official rule instead of just blindly drawing to 7.
+async function libraryEffect(p, human) {
+  const setAside = [];
+  while (p.hand.length < 7) {
+    if (!p.deck.length) p.deck = shuffle(p.discard.splice(0));
+    if (!p.deck.length) break;
+    const c = p.deck.pop();
+    if (cards[c.id].type.includes("action")) {
+      const skip = human ? await confirmPick(`${cards[c.id].name}: 넘기고 나중에 버릴까요? (손에 넣지 않음)`) : true;
+      if (skip) { setAside.push(c); continue; }
+    }
+    p.hand.push(c);
+  }
+  if (setAside.length) { p.discard.push(...setAside); log(`${p.name}: 도서관으로 액션 카드 ${setAside.length}장 넘김`); }
+}
+// Secret Chamber's reaction: unlike Moat it doesn't block the attack, just offers +2 Cards in
+// exchange for putting 2 cards back on top of the deck. Called once per attack card played,
+// independently of whether Moat also blocks that same attack.
+async function secretChamberDefense(defender) {
+  if (!defender.hand.some(c=>c.id==="secret")) return;
+  const reveal = defender.ai ? true : await confirmPick("밀실을 공개할까요? 공격은 그대로 받지만, +2 카드를 뽑은 뒤 2장을 덱 위로 되돌립니다.");
+  if (!reveal) return;
+  log(`${defender.name}: 밀실 공개 (+2 카드, 2장 덱 위로)`);
+  draw(defender, 2);
+  const n = Math.min(2, defender.hand.length);
+  if (!n) return;
+  const putBack = defender.ai ? aiChooseDiscards(defender, n) : await chooseHand("덱 위로 되돌릴 카드 선택", defender, n, n);
+  putBack.forEach(u => { const c = trashFromHand(defender, u); if (c) defender.deck.push(c); });
 }
 async function mineEffect(p, human) {
   const treasures = p.hand.map((c,i)=>cards[c.id].type==="treasure"?i:-1).filter(i=>i>=0);
