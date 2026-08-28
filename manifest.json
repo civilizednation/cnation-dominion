@@ -1,0 +1,11 @@
+{
+  "name": "cnation 도미니언",
+  "short_name": "도미니언",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#19120d",
+  "theme_color": "#19120d",
+  "lang": "ko"
+}

@@ -9,3 +9,6 @@ The title screen shows a version number (`index.html` and `index_pc.html`, in th
 even a small one. Keep the two files' version numbers in sync (PC just adds " PC" after the same
 number). Don't bump for a change that doesn't touch what ships (e.g. scratch/test files, chat-only
 answers).
+
+Bump the minor (second) digit and reset the patch digit to 0 only when the user explicitly says
+this change counts as a bigger version bump — don't decide that on your own.

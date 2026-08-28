@@ -191,8 +191,35 @@ function initChoices() {
   $("modeChoices").innerHTML = Object.entries(modes).map(([id,m])=>`<button class="choice ${id===selectedMode?"selected":""}" data-mode="${id}"><strong>${m.label}</strong><span>${m.desc}</span></button>`).join("");
   renderSoundChoices();
   document.querySelectorAll("[data-deck]").forEach(b=>b.onclick=()=>{sound("click");selectedPreset=+b.dataset.deck;initChoices();});
-  document.querySelectorAll("[data-diff]").forEach(b=>b.onclick=()=>{sound("click");selectedDiff=b.dataset.diff;initChoices();});
-  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{sound("click");selectedMode=b.dataset.mode;initChoices();});
+  document.querySelectorAll("[data-diff]").forEach(b=>b.onclick=()=>{
+    sound("click");
+    selectedDiff = b.dataset.diff;
+    if (selectedDiff === "easy") selectedMode = "speed";
+    initChoices();
+  });
+  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
+    sound("click");
+    const nextMode = b.dataset.mode;
+    if (selectedDiff === "easy" && nextMode !== "speed") { openSpeedWarn(nextMode); return; }
+    selectedMode = nextMode;
+    initChoices();
+  });
+}
+
+function openSpeedWarn(nextMode) {
+  $("speedWarnModal").classList.add("active");
+  $("speedWarnProceed").onclick = () => {
+    sound("confirm");
+    selectedMode = nextMode;
+    $("speedWarnModal").classList.remove("active");
+    initChoices();
+  };
+  $("speedWarnUseSpeed").onclick = () => {
+    sound("click");
+    selectedMode = "speed";
+    $("speedWarnModal").classList.remove("active");
+    initChoices();
+  };
 }
 
 function renderSoundChoices() {
@@ -297,7 +324,7 @@ function messageHtml(active) {
 }
 function statsHtml(p) {
   const total = p.deck.length + p.discard.length + p.hand.length + p.play.length;
-  return `<span class="pill">점수 ${score(p)}</span><span class="pill">액션 ${p.actions}</span><span class="pill">구입 ${p.buys}</span><span class="pill">재화 ${p.coins}</span><span class="pill">덱 ${p.deck.length}</span><span class="pill">버림 ${p.discard.length}</span><span class="pill">총 ${total}</span>`;
+  return `<span class="pill pill-score">점수 ${score(p)}</span><span class="pill">액션 ${p.actions}</span><span class="pill">구입 ${p.buys}</span><span class="pill">재화 ${p.coins}</span><span class="pill">덱 ${p.deck.length}</span><span class="pill">버림 ${p.discard.length}</span><span class="pill">총 ${total}</span>`;
 }
 function handHtml(c, i, human) {
   const cd = card(c);
@@ -720,13 +747,25 @@ function openModal(title, items, min, max, resolve, cancelResolve=null, okText="
   if (!items.length && min===0) $("modalOk").onclick = () => { sound("confirm"); close([]); };
 }
 
+async function enterFullscreen() {
+  const root = document.documentElement;
+  if (document.fullscreenElement) return;
+  try {
+    if (root.requestFullscreen) await root.requestFullscreen();
+    else if (root.webkitRequestFullscreen) root.webkitRequestFullscreen();
+    else if (root.msRequestFullscreen) root.msRequestFullscreen();
+  } catch {}
+}
+
 $("startBtn").onclick = async () => {
+  const fullscreenRequest = enterFullscreen();
   sound("confirm");
   await window.CNationAudio?.unlock?.();
   const button = $("startBtn");
   button.disabled = true;
 
   try {
+    await fullscreenRequest;
     await startGame();
   } catch (error) {
     console.error(error);
@@ -737,6 +776,7 @@ $("startBtn").onclick = async () => {
   }
 };
 $("miniStartBtn").onclick = async () => {
+  const fullscreenRequest = enterFullscreen();
   sound("confirm");
   await window.CNationAudio?.unlock?.();
   const button = $("miniStartBtn");
@@ -745,6 +785,7 @@ $("miniStartBtn").onclick = async () => {
   button.disabled = true;
   button.textContent = "불러오는 중...";
   try {
+    await fullscreenRequest;
     const mini = await loadMiniScript();
     if (!mini) throw new Error("mini.js 초기화에 실패했습니다.");
     mini.enable();

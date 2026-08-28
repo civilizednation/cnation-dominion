@@ -140,7 +140,11 @@
         --mini-reaction: #276b69;
         --mini-equal-card-height: calc(clamp(104px, 28vw, 116px) * 0.9);
       }
-      .app.mini-mode .game { height: 100%; }
+      /* scale-to-fit이 전체 내용을 축소할 수 있으려면, 축소 전에 내용이
+         잘리지 않고 실제 크기 그대로 그려져 있어야 한다(자르고 나서
+         줄이면 잘린 부분은 줄여도 여전히 안 보임). 바깥쪽 clip은
+         .app의 overflow:hidden이 담당한다. */
+      .app.mini-mode .game { height: auto; min-height: 100%; overflow: visible; }
       .app.mini-mode .game .center { flex: 1 0 auto; min-height: 0; padding: 6px; }
       .app.mini-mode .opponent { height: auto; min-height: 80px; padding: 5px 7px; }
       .app.mini-mode .player { min-height: 0; padding: 5px 7px max(7px, env(safe-area-inset-bottom)); }
@@ -192,10 +196,13 @@
         grid-template-columns: repeat(5, minmax(0, 1fr));
         grid-auto-rows: var(--mini-equal-card-height);
         gap: 4px;
-        /* only tall enough for one full row; a 6th+ card's row is clipped down to a
-           peeking sliver so it's clear more cards are held without pushing the layout */
+        /* only tall enough for one full row by default; a 6th+ card's row peeks in as
+           a sliver to hint there's more, and can be scrolled into view/tapped since
+           the rest of the game screen is already scaled to fit in one view */
         max-height: calc(var(--mini-equal-card-height) * 1.22 + 4px);
-        overflow: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
         align-content: start;
       }
       .app.mini-mode .mini-card,
@@ -242,9 +249,10 @@
       .app.mini-mode .mini-opponent-tools {
         flex: 1 0 150px;
         min-width: 150px;
-        height: 52px;
+        min-height: 52px;
         display: grid;
         grid-template-columns: minmax(50px, .65fr) minmax(96px, 1.35fr);
+        align-items: stretch;
         gap: 3px;
         margin-left: 3px;
       }
@@ -268,15 +276,13 @@
         background: #2f231a;
         color: #f7e7c5;
         font-size: 8px;
-        line-height: 1.08;
-        overflow: hidden;
+        line-height: 1.22;
       }
       .app.mini-mode .mini-win-condition strong,
       .app.mini-mode .mini-win-condition span {
         display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        white-space: normal;
+        overflow-wrap: break-word;
       }
       .app.mini-mode .mini-win-condition strong {
         color: #f4cf6d;
@@ -385,7 +391,7 @@
         position: absolute;
         right: 4px;
         bottom: 4px;
-        min-width: 21px;
+        min-width: 30px;
         height: 18px;
         display: grid;
         place-items: center;
@@ -456,6 +462,41 @@
     if (status && actions && actions.parentElement !== status) status.appendChild(actions);
   }
 
+  // 주소창/하단 툴바 때문에 실제로 보이는 화면 높이가 줄어드는 브라우저 탭 환경에서도
+  // 미니게임 전체(공급처 맨 아래 "내 덱"까지)가 스크롤 없이 한 화면에 들어오도록,
+  // 내용이 화면보다 크면 비율을 유지한 채 축소한다.
+  let fitObserver = null;
+  let fitRaf = null;
+
+  function fitToViewport() {
+    const game = document.querySelector(".app.mini-mode .game");
+    if (!game) return;
+    game.style.transform = "none";
+    const available = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const natural = game.scrollHeight;
+    const scale = natural > available ? Math.max(available / natural, 0.72) : 1;
+    game.style.transformOrigin = "top center";
+    game.style.transform = scale < 1 ? `scale(${scale})` : "none";
+  }
+
+  function scheduleFit() {
+    if (fitRaf) cancelAnimationFrame(fitRaf);
+    fitRaf = requestAnimationFrame(fitToViewport);
+  }
+
+  function watchViewportFit() {
+    scheduleFit();
+    if (fitObserver) return;
+    const game = document.querySelector(".app.mini-mode .game");
+    if (game) {
+      fitObserver = new MutationObserver(scheduleFit);
+      fitObserver.observe(game, {childList: true, subtree: true});
+    }
+    window.addEventListener("resize", scheduleFit);
+    window.addEventListener("orientationchange", scheduleFit);
+    window.visualViewport?.addEventListener("resize", scheduleFit);
+  }
+
   window.CNationMini = {
     enabled: false,
 
@@ -466,6 +507,7 @@
       document.querySelector(".app")?.classList.add("mini-mode");
       arrangeMiniControls();
       watchTopArea();
+      watchViewportFit();
     },
 
     handHtml(c, index, human) {
@@ -488,7 +530,7 @@
       const kind = typeKey(cd);
       const count = state.supply[id] || 0;
       const countState = count <= 1 ? "danger" : count <= 3 ? "warn" : "";
-      return `<button type="button" class="supply-card mini-supply type-${kind} card-${id} ${count <= 0 ? "empty" : ""}" data-buy="${id}" aria-label="${text(cd.name)}, 비용 ${cd.cost}, 남은 카드 ${count}, ${text(EFFECTS[id] || "")}">${cardBody(id)}<span class="mini-count ${countState}" aria-label="남은 수량 ${count}">${count}</span></button>`;
+      return `<button type="button" class="supply-card mini-supply type-${kind} card-${id} ${count <= 0 ? "empty" : ""}" data-buy="${id}" aria-label="${text(cd.name)}, 비용 ${cd.cost}, 남은 카드 ${count}장, ${text(EFFECTS[id] || "")}">${cardBody(id)}<span class="mini-count ${countState}" aria-label="남은 수량 ${count}장">${count}장</span></button>`;
     },
 
     modalCardHtml(item) {
