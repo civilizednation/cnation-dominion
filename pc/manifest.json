@@ -1,0 +1,14 @@
+{
+  "name": "cnation 도미니언 PC",
+  "short_name": "도미니언 PC",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#19120d",
+  "theme_color": "#19120d",
+  "lang": "ko",
+  "icons": [
+    { "src": "../assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "../assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
