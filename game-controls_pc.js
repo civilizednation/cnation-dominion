@@ -73,7 +73,7 @@
         background: linear-gradient(180deg, #86503c, #653225);
         color: #fff7df;
         box-shadow: inset 0 1px 0 #ffffff20, 0 3px 8px #0006;
-        font-size: 14px;
+        font-size: var(--fs-3);
         font-weight: 900;
       }
       .pc-exit-button:active { transform: translateY(1px); }
@@ -93,13 +93,13 @@
       .pc-win-condition small { display: block; }
       .pc-win-condition strong {
         color: #f4cf6d;
-        font-size: 11px;
+        font-size: var(--fs-1);
         line-height: 1;
       }
       .pc-win-mode {
         margin-top: 4px;
         color: #fff4d2;
-        font-size: 14px;
+        font-size: var(--fs-3);
         font-weight: 900;
         line-height: 1.05;
         white-space: nowrap;
@@ -109,7 +109,7 @@
       .pc-win-description {
         margin-top: 3px;
         color: #d8c5a4;
-        font-size: 11px;
+        font-size: var(--fs-1);
         line-height: 1.12;
         word-break: keep-all;
         white-space: nowrap;
@@ -119,7 +119,7 @@
       .pc-win-kingdom {
         margin-top: 4px;
         color: #f0d58f;
-        font-size: 11px;
+        font-size: var(--fs-1);
         font-weight: 800;
         line-height: 1.12;
         white-space: nowrap;

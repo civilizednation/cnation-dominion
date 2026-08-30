@@ -120,7 +120,7 @@
         background: linear-gradient(180deg, #86503c, #653225);
         color: #fff7df;
         box-shadow: inset 0 1px 0 #ffffff20, 0 3px 8px #0006;
-        font-size: 14px;
+        font-size: var(--fs-4);
         font-weight: 900;
         line-height: 1;
       }
@@ -148,14 +148,14 @@
 
       .app:not(.mini-mode) .game-win-condition strong {
         color: #f4cf6d;
-        font-size: 11px;
+        font-size: var(--fs-2);
         line-height: 1;
       }
 
       .app:not(.mini-mode) .game-win-mode {
         margin-top: 4px;
         color: #fff4d2;
-        font-size: 12px;
+        font-size: var(--fs-3);
         font-weight: 900;
         line-height: 1.05;
       }
@@ -163,7 +163,7 @@
       .app:not(.mini-mode) .game-win-description {
         margin-top: 3px;
         color: #d8c5a4;
-        font-size: 10px;
+        font-size: var(--fs-1);
         line-height: 1.18;
         white-space: normal;
         word-break: keep-all;
@@ -172,7 +172,7 @@
       .app:not(.mini-mode) .game-win-kingdom {
         margin-top: 4px;
         color: #f0d58f;
-        font-size: 10px;
+        font-size: var(--fs-1);
         font-weight: 800;
         line-height: 1.12;
         white-space: nowrap;
@@ -192,7 +192,7 @@
         .app:not(.mini-mode) .game-exit-button {
           padding: 2px 4px;
           border-radius: 6px;
-          font-size: 10px;
+          font-size: var(--fs-2);
         }
 
         .app:not(.mini-mode) .game-win-condition {
@@ -201,23 +201,23 @@
         }
 
         .app:not(.mini-mode) .game-win-condition strong {
-          font-size: 8.5px;
+          font-size: var(--fs-1);
         }
 
         .app:not(.mini-mode) .game-win-mode {
           margin-top: 3px;
-          font-size: 9px;
+          font-size: var(--fs-1);
         }
 
         .app:not(.mini-mode) .game-win-description {
           margin-top: 2px;
-          font-size: 7.5px;
+          font-size: var(--fs-1);
           line-height: 1.12;
         }
 
         .app:not(.mini-mode) .game-win-kingdom {
           margin-top: 3px;
-          font-size: 7.5px;
+          font-size: var(--fs-1);
           line-height: 1.08;
         }
       }
