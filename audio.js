@@ -1,14 +1,17 @@
 (() => {
   "use strict";
 
-  const BGM_BASE = "./assets/audio/bgm/";
+  // resolved relative to this script's own URL (not the page's), so the same audio.js works
+  // whether it's loaded from the site root (index.html) or a subfolder (pc/index.html)
+  const SCRIPT_DIR = document.currentScript ? document.currentScript.src.replace(/[^/]*$/, "") : "./";
+  const BGM_BASE = `${SCRIPT_DIR}assets/audio/bgm/`;
   const SFX_FILES = {
-    click: "./assets/audio/sfx/click.wav",
-    card: "./assets/audio/sfx/card.wav",
-    buy: "./assets/audio/sfx/buy.wav",
-    block: "./assets/audio/sfx/block.wav",
-    warning: "./assets/audio/sfx/warning.wav",
-    confirm: "./assets/audio/sfx/confirm.wav"
+    click: `${SCRIPT_DIR}assets/audio/sfx/click.wav`,
+    card: `${SCRIPT_DIR}assets/audio/sfx/card.wav`,
+    buy: `${SCRIPT_DIR}assets/audio/sfx/buy.wav`,
+    block: `${SCRIPT_DIR}assets/audio/sfx/block.wav`,
+    warning: `${SCRIPT_DIR}assets/audio/sfx/warning.wav`,
+    confirm: `${SCRIPT_DIR}assets/audio/sfx/confirm.wav`
   };
   const KINGDOM_BGM = [
     ["01_village_01.mp3", "01_village_02.mp3"],

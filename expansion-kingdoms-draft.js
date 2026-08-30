@@ -1,6 +1,6 @@
 // cnation DOMINION — 확장팩 왕국 조합 초안 (5종)
 //
-// 이 파일은 게임에서 실제로 로드되지 않는 "기획 문서"입니다. index.html / index_pc.html
+// 이 파일은 게임에서 실제로 로드되지 않는 "기획 문서"입니다. index.html / pc/index.html
 // 어디에도 <script> 태그로 연결되어 있지 않으니, 지우거나 옮겨도 게임 동작에는 영향이 없어요.
 // 나중에 확장팩으로 실제 추가할 때 참고용으로 만들어 둔 자료입니다.
 //
@@ -11,7 +11,7 @@
 // 2. mini.js 는 카드 이름/이펙트를 cards 객체에서 그대로 가져다 쓰므로 별도 수정이 필요 없습니다.
 // 3. 왕국이 5개 늘어나면 BUY_CAP / ACTION_ORDER / aiBuyPriorities 등 AI 로직이 각 왕국에서
 //    실제로 잘 작동하는지(특히 밀실이 등장하는 왕국들) 반드시 실전 테스트로 재검증할 것.
-// 4. CLAUDE.md 버전 규칙대로 index.html / index_pc.html 버전 번호를 함께 올릴 것.
+// 4. CLAUDE.md 버전 규칙대로 index.html / pc/index.html 버전 번호를 함께 올릴 것.
 // ─────────────────────────────────────────────────────────────────────
 
 const EXPANSION_PRESETS = [

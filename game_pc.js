@@ -1,4 +1,4 @@
-const IMG = "./assets/cards/";
+const IMG = "../assets/cards/";
 const cards = {
   copper:{name:"동",type:"treasure",cost:0,coins:1,img:"001-copper-동.webp"},
   silver:{name:"은",type:"treasure",cost:3,coins:2,img:"002-silver-은.webp"},
