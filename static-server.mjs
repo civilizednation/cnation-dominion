@@ -16,6 +16,8 @@ const types = {
   ".svg": "image/svg+xml",
   ".mp3": "audio/mpeg",
   ".wav": "audio/wav",
+  ".json": "application/json; charset=utf-8",
+  ".ico": "image/x-icon",
 };
 
 http.createServer((req, res) => {
